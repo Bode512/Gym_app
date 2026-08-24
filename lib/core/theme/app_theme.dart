@@ -4,22 +4,28 @@ import 'package:google_fonts/google_fonts.dart';
 enum AppTheme { deepSlate, cyberNeon, crimsonBlood, goldRush }
 
 class AppColors {
-  // Common Dark Colors
-  static const Color backgroundDark = Color(0xFF0B0E14);
-  static const Color surfaceDark = Color(0xFF151A24);
-  static const Color surfaceSoft = Color(0xFF1E2532);
-  static const Color borderDark = Color(0x1AFFFFFF);
+  // Deep Dark Luxury Colors
+  static const Color backgroundDark = Color(0xFF0D0D0D);
+  static const Color surfaceDark = Color(0xFF1E1E1E);
+  static const Color surfaceSoft = Color(0xFF2A2A2A);
+  static const Color borderDark = Color(0x26C9A24B);
+  static const Color borderSubtle = Color(0x1FFFFFFF);
 
-  // Status & Accent
-  static const Color success = Color(0xFF10B981);
+  // Champagne Gold Accent & Brand Colors
+  static const Color goldPrimary = Color(0xFFC9A24B);
+  static const Color goldLight = Color(0xFFE2C475);
+  static const Color goldDark = Color(0xFF9E7B2F);
+
+  // Status Colors (Warm & Muted to maintain luxury aesthetic)
+  static const Color success = Color(0xFF34D399);
   static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color error = Color(0xFFF87171);
+  static const Color info = Color(0xFF60A5FA);
 
   // Text Colors
-  static const Color textPrimary = Color(0xFFF8FAFC);
-  static const Color textSecondary = Color(0xFF94A3B8);
-  static const Color textMuted = Color(0xFF64748B);
+  static const Color textPrimary = Color(0xFFF2F0EB);   // Bone white
+  static const Color textSecondary = Color(0xFFA0A0A0); // Light graphite
+  static const Color textMuted = Color(0xFF666666);     // Soft gray
 }
 
 class AppThemes {
@@ -47,11 +53,11 @@ class AppThemes {
       case AppTheme.deepSlate:
       default:
         bg = AppColors.backgroundDark;
-        primary = const Color(0xFF3B82F6);
+        primary = AppColors.goldPrimary;
         cardBg = AppColors.surfaceDark;
     }
 
-    final textTheme = GoogleFonts.plusJakartaSansTextTheme(
+    final textTheme = GoogleFonts.interTextTheme(
       ThemeData.dark().textTheme,
     ).apply(
       bodyColor: AppColors.textPrimary,
@@ -80,8 +86,8 @@ class AppThemes {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.borderDark),
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.borderDark, width: 1.0),
         ),
       ),
 
@@ -91,13 +97,13 @@ class AppThemes {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.outfit(
-          fontSize: 18,
+        titleTextStyle: GoogleFonts.playfairDisplay(
+          fontSize: 20,
           fontWeight: FontWeight.bold,
           color: AppColors.textPrimary,
           letterSpacing: 1.2,
         ),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: const IconThemeData(color: AppColors.goldPrimary),
       ),
 
       // Dialog Theme
@@ -105,15 +111,15 @@ class AppThemes {
         backgroundColor: cardBg,
         elevation: 10,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.borderDark),
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.borderDark, width: 1.0),
         ),
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: GoogleFonts.playfairDisplay(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.bold,
           fontSize: 20,
         ),
-        contentTextStyle: GoogleFonts.plusJakartaSans(
+        contentTextStyle: GoogleFonts.inter(
           color: AppColors.textSecondary,
           fontSize: 14,
         ),
@@ -123,13 +129,14 @@ class AppThemes {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
-          foregroundColor: Colors.white,
+          foregroundColor: const Color(0xFF0D0D0D), // Dark text on gold button for high contrast
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          textStyle: GoogleFonts.plusJakartaSans(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
           ),
         ),
       ),
@@ -137,10 +144,10 @@ class AppThemes {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primary,
-          side: BorderSide(color: primary.withOpacity(0.5)),
+          side: BorderSide(color: primary.withOpacity(0.6), width: 1.2),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          textStyle: GoogleFonts.plusJakartaSans(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
@@ -150,7 +157,7 @@ class AppThemes {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primary,
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -163,18 +170,18 @@ class AppThemes {
         fillColor: AppColors.surfaceSoft,
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.borderDark),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.borderDark),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: primary, width: 2),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.goldPrimary, width: 1.5),
         ),
-        hintStyle: GoogleFonts.plusJakartaSans(
+        hintStyle: GoogleFonts.inter(
           color: AppColors.textMuted,
           fontSize: 14,
         ),
@@ -187,8 +194,8 @@ class AppThemes {
         selectedColor: primary,
         secondarySelectedColor: primary,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        labelStyle: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600),
-        secondaryLabelStyle: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600),
+        labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
+        secondaryLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
         brightness: Brightness.dark,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -209,7 +216,7 @@ class AppThemes {
       case AppTheme.cyberNeon: return const Color(0xFF00F5FF);
       case AppTheme.crimsonBlood: return const Color(0xFFFF3B30);
       case AppTheme.goldRush: return const Color(0xFFFFD700);
-      default: return const Color(0xFF3B82F6);
+      default: return AppColors.goldPrimary;
     }
   }
 
@@ -222,3 +229,4 @@ class AppThemes {
     }
   }
 }
+
