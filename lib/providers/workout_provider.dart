@@ -5,11 +5,15 @@ import '../models/training_session.dart';
 import '../models/workout_config.dart';
 import '../services/storage_service.dart';
 import '../services/workout_service.dart';
+import '../core/services/notification_service.dart';
+import '../core/services/pip_service.dart';
 import '../core/utils/haptic_utils.dart';
 import '../core/constants/exercise_database.dart';
 
 class WorkoutProvider extends ChangeNotifier {
   final StorageService _storage = StorageService();
+  final NotificationService _notificationService = NotificationService();
+  final PipService _pipService = PipService();
 
   List<TrainingSession> _sessions = [];
   WorkoutConfig _config = WorkoutConfig.defaultConfig();
@@ -20,8 +24,6 @@ class WorkoutProvider extends ChangeNotifier {
   String _activeWorkoutType = '';
   List<ExerciseSet> _currentSessionExercises = [];
   String _selectedExercise = '';
-  // Lista de ejercicios activos — se carga al iniciar sesión para evitar
-  // problemas de lookup por claves con formato diferente en el mapa.
   List<String> _activeExercises = [];
   
   // -- Timer State --
@@ -36,7 +38,6 @@ class WorkoutProvider extends ChangeNotifier {
   bool get isSessionActive => _isSessionActive;
   bool get isPaused => _isPaused;
   String get activeWorkoutType => _activeWorkoutType;
-  /// Ejercicios de la sesión activa (ya resueltos al iniciarla).
   List<String> get activeExercises => _activeExercises;
   List<ExerciseSet> get currentSessionExercises => _currentSessionExercises;
   String get selectedExercise => _selectedExercise;
@@ -49,13 +50,15 @@ class WorkoutProvider extends ChangeNotifier {
 
   Future<void> _loadData() async {
     await _storage.init();
+    await _notificationService.init();
+    await _notificationService.requestPermissions();
+
     _sessions = _storage.loadSessions();
     _config = _storage.loadConfig();
 
     print('[WorkoutProvider] _loadData: ${_sessions.length} sesiones, '
         '${_config.groups.length} grupos: ${_config.groups}');
 
-    // Validación de integridad post-carga
     if (_config.groups.isEmpty) {
       print('[WorkoutProvider] _loadData: WARNING - groups vacío, forzando defaultConfig');
       _config = WorkoutConfig.defaultConfig();
@@ -67,7 +70,7 @@ class WorkoutProvider extends ChangeNotifier {
   }
 
   void _checkRunningTimer() {
-    final prefs = _storage.prefs; // Acceder a SharedPreferences via StorageService
+    final prefs = _storage.prefs;
     final endTimeStr = prefs.getString('timer_end_time');
     if (endTimeStr != null) {
       final endTime = DateTime.parse(endTimeStr);
@@ -76,6 +79,7 @@ class WorkoutProvider extends ChangeNotifier {
         _timerEndTime = endTime;
         _secondsLeft = diff;
         _showTimer = true;
+        _pipService.setTimerActive(true);
         _startTimerLoop();
       } else {
         prefs.remove('timer_end_time');
@@ -84,12 +88,7 @@ class WorkoutProvider extends ChangeNotifier {
   }
 
   // --- Session Management ---
-  /// Start workout for the given group type. If the group has no exercises
-  /// in exerciseDb, it will attempt to populate them from ExerciseDatabase defaults.
   void startWorkout(String type) {
-    print('[WorkoutProvider] startWorkout: "$type" — exerciseDb keys: ${_config.exerciseDb.keys.toList()}');
-
-    // Buscar la clave real en exerciseDb (tolerante a diferencias de formato)
     String resolvedKey = type;
     if (!_config.exerciseDb.containsKey(type)) {
       final normalized = type.trim().toUpperCase();
@@ -97,13 +96,9 @@ class WorkoutProvider extends ChangeNotifier {
         (k) => k.trim().toUpperCase() == normalized,
         orElse: () => type,
       );
-      print('[WorkoutProvider] startWorkout: clave "$type" resuelta a "$resolvedKey"');
     }
 
-    // Si el grupo no tiene ejercicios, intentar poblar desde defaults
     if (!_config.exerciseDb.containsKey(resolvedKey) || _config.exerciseDb[resolvedKey]!.isEmpty) {
-      print('[WorkoutProvider] startWorkout: "$resolvedKey" sin ejercicios, buscando defaults');
-      // Buscar defaults también tolerante a formato
       final normalizedKey = resolvedKey.trim().toUpperCase();
       final defaultEntry = ExerciseDatabase.defaultExerciseDb.entries.firstWhere(
         (e) => e.key.trim().toUpperCase() == normalizedKey,
@@ -115,28 +110,22 @@ class WorkoutProvider extends ChangeNotifier {
         newDb[resolvedKey] = List<String>.from(defaults);
         _config = _config.copyWith(exerciseDb: newDb);
         _storage.saveConfig(_config);
-        print('[WorkoutProvider] startWorkout: poblado con ${defaults.length} ejercicios defaults');
-      } else {
-        print('[WorkoutProvider] startWorkout: no hay defaults para "$resolvedKey", iniciando vacío');
       }
     }
 
-    // Resolver la lista final de ejercicios y guardarla en estado
     final exercises = _config.exerciseDb[resolvedKey] ?? [];
-    print('[WorkoutProvider] startWorkout: "$resolvedKey" tiene ${exercises.length} ejercicios: $exercises');
 
     _activeWorkoutType = resolvedKey;
     _activeExercises = List<String>.from(exercises);
     _currentSessionExercises = [];
     _isSessionActive = true;
-
     _selectedExercise = exercises.isNotEmpty ? exercises[0] : '';
 
     notifyListeners();
   }
 
   void finishWorkout() {
-    _restTimer?.cancel();
+    stopTimer();
     if (_currentSessionExercises.isNotEmpty) {
       final session = TrainingSession(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -158,7 +147,7 @@ class WorkoutProvider extends ChangeNotifier {
   }
 
   void cancelWorkout() {
-    _restTimer?.cancel();
+    stopTimer();
     _isSessionActive = false;
     _isPaused = false;
     _activeWorkoutType = '';
@@ -180,9 +169,6 @@ class WorkoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Continue the current active session using a different group without
-  /// clearing the current session exercises. Useful when the previous group's
-  /// exercises were removed and the user wants to continue.
   void continueWithGroup(String group) {
     _activeWorkoutType = group;
     final exercises = _config.exerciseDb[group] ?? [];
@@ -211,7 +197,6 @@ class WorkoutProvider extends ChangeNotifier {
 
     _currentSessionExercises.insert(0, newSet);
     
-    // Check if it's a new PB
     final pb = WorkoutService.getPB(_sessions, name);
     if (pb == null || newSet.calculateScore() > pb.calculateScore()) {
       HapticUtils.recordCelebration();
@@ -237,6 +222,7 @@ class WorkoutProvider extends ChangeNotifier {
     _timerEndTime = DateTime.now().add(Duration(seconds: duration));
     _storage.prefs.setString('timer_end_time', _timerEndTime!.toIso8601String());
     
+    _pipService.setTimerActive(true);
     _startTimerLoop();
     notifyListeners();
   }
@@ -249,9 +235,13 @@ class WorkoutProvider extends ChangeNotifier {
         notifyListeners();
       } else {
         _restTimer?.cancel();
-        _showTimer = false;
         _storage.prefs.remove('timer_end_time');
+        _pipService.setTimerActive(false);
         HapticUtils.timerFinish();
+        _notificationService.showRestTimerCompleteNotification(
+          title: '¡Tiempo de Descanso Finalizado! 💪',
+          body: 'Has completado el tiempo de recuperación. ¡A por la siguiente serie!',
+        );
         notifyListeners();
       }
     });
@@ -260,6 +250,7 @@ class WorkoutProvider extends ChangeNotifier {
   void stopTimer() {
     _restTimer?.cancel();
     _showTimer = false;
+    _pipService.setTimerActive(false);
     _storage.prefs.remove('timer_end_time');
     notifyListeners();
   }

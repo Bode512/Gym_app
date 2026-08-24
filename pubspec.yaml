@@ -39,6 +39,7 @@ dependencies:
   share_plus: ^7.2.1
   path_provider: ^2.1.1
   flutter_lucide: ^1.33.0
+  flutter_local_notifications: ^17.1.2
 
 dev_dependencies:
   flutter_test:

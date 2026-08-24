@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/services/pip_service.dart';
 import '../../providers/workout_provider.dart';
 
 class TimerWidget extends StatefulWidget {
@@ -60,6 +61,11 @@ class _TimerWidgetState extends State<TimerWidget> {
               ),
               const SizedBox(width: 12),
               GestureDetector(
+                onTap: () => PipService().enterPip(),
+                child: const Icon(LucideIcons.minimize_2, color: AppColors.textSecondary, size: 16),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
                 onTap: () => workout.stopTimer(),
                 child: const Icon(LucideIcons.x, color: AppColors.textMuted, size: 16),
               )
@@ -102,6 +108,8 @@ class _TimerWidgetState extends State<TimerWidget> {
                   children: [
                     if (workout.secondsLeft > 0) ...[
                       _extraBtn("+30s", () => workout.startRestTimer(customSeconds: workout.secondsLeft + 30)),
+                      const SizedBox(width: 16),
+                      _extraBtn("PiP", () => PipService().enterPip(), color: theme.accentColor),
                       const SizedBox(width: 16),
                       _extraBtn("PARAR", () => workout.stopTimer(), color: AppColors.error),
                     ] else ...[
