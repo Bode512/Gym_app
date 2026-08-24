@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+//import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 import '../core/theme/theme_manager.dart';
@@ -10,6 +10,9 @@ import 'tabs/workout_tab.dart';
 import 'tabs/history_tab.dart';
 import 'tabs/stats_tab.dart';
 import 'settings/settings_screen.dart';
+
+// Add this:
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -36,10 +39,19 @@ class _MainScreenState extends State<MainScreen> {
     // Determinar icono del tema para el header
     IconData themeIcon;
     switch (theme.currentTheme) {
-      case AppTheme.cyberNeon: themeIcon = LucideIcons.zap; break;
-      case AppTheme.crimsonBlood: themeIcon = LucideIcons.flame; break;
-      case AppTheme.goldRush: themeIcon = LucideIcons.award; break;
-      default: themeIcon = LucideIcons.moon;
+      // Change LucideIcons to Lucide
+      case AppTheme.cyberNeon: themeIcon = Lucide.zap; break;
+      case AppTheme.crimsonBlood: themeIcon = Lucide.flame; break;
+      case AppTheme.goldRush: themeIcon = Lucide.award; break;
+      default: themeIcon = Lucide.moon;
+      
+      // REMOVE 'const' here (Lucide icons in this library aren't compile-time constants)
+      icon: Icon(Lucide.settings, size: 20, color: Colors.white24),
+      
+      // Change the navigation items
+      _navItem(0, Lucide.play, settings.translate('today'), theme),
+      _navItem(1, Lucide.calendar, settings.translate('history'), theme),
+      _navItem(2, Lucide.trendingUp, settings.translate('progress'), theme),
     }
 
     return Scaffold(

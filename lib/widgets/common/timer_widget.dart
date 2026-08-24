@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/workout_provider.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class TimerWidget extends StatefulWidget {
   const TimerWidget({super.key});
@@ -44,7 +44,8 @@ class _TimerWidgetState extends State<TimerWidget> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(LucideIcons.timer, color: theme.accentColor, size: 16),
+              // CORREGIDO: Lucide en lugar de LucideIcons y sin const
+              Icon(Lucide.timer, color: theme.accentColor, size: 16),
               const SizedBox(width: 8),
               Text(
                 "${(workout.secondsLeft ~/ 60)}:${(workout.secondsLeft % 60).toString().padLeft(2, '0')}",
@@ -53,7 +54,8 @@ class _TimerWidgetState extends State<TimerWidget> {
               const SizedBox(width: 12),
               GestureDetector(
                 onTap: () => workout.stopTimer(),
-                child: const Icon(LucideIcons.x, color: Colors.white24, size: 16),
+                // CORREGIDO: Lucide en lugar de LucideIcons y sin const
+                child: Icon(Lucide.x, color: Colors.white24, size: 16),
               )
             ],
           ),
@@ -73,7 +75,8 @@ class _TimerWidgetState extends State<TimerWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(LucideIcons.timer, color: workout.secondsLeft == 0 ? Colors.redAccent : theme.accentColor, size: 80),
+                // CORREGIDO: Lucide en lugar de LucideIcons y sin const
+                Icon(Lucide.timer, color: workout.secondsLeft == 0 ? Colors.redAccent : theme.accentColor, size: 80),
                 const SizedBox(height: 20),
                 Text(
                   "${(workout.secondsLeft ~/ 60)}:${(workout.secondsLeft % 60).toString().padLeft(2, '0')}",
@@ -110,7 +113,8 @@ class _TimerWidgetState extends State<TimerWidget> {
             top: 60,
             right: 24,
             child: IconButton(
-              icon: const Icon(LucideIcons.x, color: Colors.white, size: 30),
+              // CORREGIDO: Lucide en lugar de LucideIcons y sin const
+              icon: Icon(Lucide.x, color: Colors.white, size: 30),
               onPressed: () => setState(() => _isExpanded = false),
             ),
           ),

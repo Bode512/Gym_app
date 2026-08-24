@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+//import 'package:lucide_icons/lucide_icons.dart';
 import '../../models/workout_config.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/theme_manager.dart';
@@ -8,6 +8,9 @@ import '../../providers/workout_provider.dart';
 import '../../widgets/settings/group_config_card.dart';
 import '../../widgets/settings/day_selector.dart';
 import '../../widgets/settings/exercise_manager.dart';
+
+// Add this:
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

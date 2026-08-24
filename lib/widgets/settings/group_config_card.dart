@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+//import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../models/workout_config.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/workout_provider.dart';
+
+// Add this:
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class GroupConfigCard extends StatelessWidget {
   final String groupName;
