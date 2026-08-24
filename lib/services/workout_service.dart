@@ -2,6 +2,30 @@ import '../models/exercise_set.dart';
 import '../models/training_session.dart';
 import '../models/workout_config.dart';
 
+class ProgressionSuggestion {
+  final String exerciseName;
+  final double previousWeight;
+  final double previousReps;
+  final double suggestedWeight;
+  final double suggestedReps;
+  final double weightDelta;
+  final String reason;
+  final String title;
+  final bool isFirstTime;
+
+  ProgressionSuggestion({
+    required this.exerciseName,
+    required this.previousWeight,
+    required this.previousReps,
+    required this.suggestedWeight,
+    required this.suggestedReps,
+    required this.weightDelta,
+    required this.reason,
+    required this.title,
+    this.isFirstTime = false,
+  });
+}
+
 class WorkoutService {
   // Calcular récord personal (PR/PB) para un ejercicio
   static ExerciseSet? getPB(List<TrainingSession> sessions, String exerciseName) {
@@ -25,6 +49,66 @@ class WorkoutService {
       }
     }
     return null;
+  }
+
+  // Algoritmo de Sobrecarga Progresiva Adaptativa
+  static ProgressionSuggestion suggestNextProgression(List<TrainingSession> sessions, String exerciseName) {
+    final lastSet = getLastTime(sessions, exerciseName);
+
+    if (lastSet == null) {
+      return ProgressionSuggestion(
+        exerciseName: exerciseName,
+        previousWeight: 0,
+        previousReps: 0,
+        suggestedWeight: 20.0,
+        suggestedReps: 10.0,
+        weightDelta: 0,
+        reason: '¡Primer registro para este ejercicio! Selecciona tu peso inicial de referencia.',
+        title: 'NUEVO EJERCICIO 🎯',
+        isFirstTime: true,
+      );
+    }
+
+    final double lastWeight = lastSet.weight;
+    final double lastReps = lastSet.reps;
+
+    if (lastReps >= 10) {
+      final double nextWeight = lastWeight + 2.5;
+      return ProgressionSuggestion(
+        exerciseName: exerciseName,
+        previousWeight: lastWeight,
+        previousReps: lastReps,
+        suggestedWeight: nextWeight,
+        suggestedReps: 8.0,
+        weightDelta: 2.5,
+        title: '¡SUBIMOS DE CARGA! 🚀',
+        reason: 'La última vez completaste ${lastWeight}kg x ${lastReps.toInt()} reps. Te sugerimos subir +2.5kg hoy (8 reps de objetivo).',
+      );
+    } else if (lastReps >= 6) {
+      final double targetReps = (lastReps + 2).clamp(6.0, 12.0);
+      return ProgressionSuggestion(
+        exerciseName: exerciseName,
+        previousWeight: lastWeight,
+        previousReps: lastReps,
+        suggestedWeight: lastWeight,
+        suggestedReps: targetReps,
+        weightDelta: 0.0,
+        title: 'CONSOLIDA VOLUMEN 📈',
+        reason: 'La última vez hiciste ${lastWeight}kg x ${lastReps.toInt()} reps. Hoy mantén los ${lastWeight}kg pero apunta a ${targetReps.toInt()} reps.',
+      );
+    } else {
+      final double deloadWeight = (lastWeight - 2.5).clamp(0.0, double.infinity);
+      return ProgressionSuggestion(
+        exerciseName: exerciseName,
+        previousWeight: lastWeight,
+        previousReps: lastReps,
+        suggestedWeight: deloadWeight > 0 ? deloadWeight : lastWeight,
+        suggestedReps: 8.0,
+        weightDelta: deloadWeight > 0 ? -2.5 : 0.0,
+        title: 'AJUSTE DE TÉCNICA 🛡️',
+        reason: 'La última vez hiciste ${lastWeight}kg x ${lastReps.toInt()} reps. Ajustamos ligeramente el peso para asegurar técnica limpia.',
+      );
+    }
   }
 
   // Obtener sugerencia de rutina según el modo de planificación

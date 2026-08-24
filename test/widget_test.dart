@@ -8,10 +8,9 @@ import 'package:trainerpro/main.dart';
 import 'package:trainerpro/core/theme/theme_manager.dart';
 import 'package:trainerpro/providers/workout_provider.dart';
 import 'package:trainerpro/providers/settings_provider.dart';
+import 'package:trainerpro/services/workout_service.dart';
 import 'package:trainerpro/screens/main_screen.dart';
 import 'package:trainerpro/screens/tabs/workout_tab.dart';
-import 'package:trainerpro/screens/tabs/history_tab.dart';
-import 'package:trainerpro/screens/tabs/stats_tab.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +50,6 @@ void main() {
     await tester.pumpWidget(buildTestApp(workout, settings));
     await tester.pumpAndSettle();
 
-    // Start workout
     workout.startWorkout('PUSH (EMPUJE)');
     await tester.pumpAndSettle();
 
@@ -59,19 +57,44 @@ void main() {
     expect(find.text('ENTRENANDO'), findsOneWidget);
   });
 
-  testWidgets('3. HistoryTab and StatsTab render without errors', (WidgetTester tester) async {
+  testWidgets('3. Test Weight Progression Algorithm & Suggestion Card Flow', (WidgetTester tester) async {
     final workout = WorkoutProvider();
     final settings = SettingsProvider();
 
     await tester.pumpWidget(buildTestApp(workout, settings));
     await tester.pumpAndSettle();
 
-    // Switch to HistoryTab
-    await tester.tap(find.byIcon(LucideIcons.calendar).first);
+    // 1. Start workout & add set of 80kg x 10 reps
+    workout.startWorkout('PUSH (EMPUJE)');
     await tester.pumpAndSettle();
 
-    // Switch to StatsTab
-    await tester.tap(find.byIcon(LucideIcons.trending_up).first);
+    const String exercise = 'PRESS BANCA PLANO';
+    workout.setSelectedExercise(exercise);
+    workout.addSet(exercise, 80.0, 10.0, 'Excelente sesión');
+    workout.finishWorkout();
     await tester.pumpAndSettle();
+
+    // 2. Start a new workout session with the same exercise
+    workout.startWorkout('PUSH (EMPUJE)');
+    workout.setSelectedExercise(exercise);
+    await tester.pumpAndSettle();
+
+    // 3. Test Progression Algorithm calculation
+    final suggestion = WorkoutService.suggestNextProgression(workout.sessions, exercise);
+    expect(suggestion.previousWeight, 80.0);
+    expect(suggestion.previousReps, 10.0);
+    expect(suggestion.suggestedWeight, 82.5);
+    expect(suggestion.suggestedReps, 8.0);
+    expect(suggestion.weightDelta, 2.5);
+
+    // 4. Verify suggestion card rendered in UI
+    expect(find.text('¡SUBIMOS DE CARGA! 🚀'), findsOneWidget);
+    expect(find.text('82.5kg x 8'), findsOneWidget);
+
+    // 5. Tap ACEPTAR button
+    await tester.tap(find.text('ACEPTAR'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('SUGERENCIA ACEPTADA'), findsOneWidget);
   });
 }

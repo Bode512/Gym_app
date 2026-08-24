@@ -8,6 +8,7 @@ import '../../providers/workout_provider.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/workout/set_card.dart';
+import '../settings/exercise_detail_screen.dart';
 
 class HistoryTab extends StatelessWidget {
   const HistoryTab({super.key});
@@ -73,7 +74,17 @@ class HistoryTab extends StatelessWidget {
                 "${session.date.day}/${session.date.month}/${session.date.year} • ${session.exercises.length} ${settings.translate('all_sets').toLowerCase()}",
                 style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textSecondary),
               ),
-              children: session.exercises.map((s) => SetCard(exerciseSet: s)).toList(),
+              children: session.exercises.map((s) => InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExerciseDetailScreen(exerciseName: s.name),
+                    ),
+                  );
+                },
+                child: SetCard(exerciseSet: s),
+              )).toList(),
             ),
           ),
         );

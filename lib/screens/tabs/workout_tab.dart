@@ -7,14 +7,17 @@ import '../../providers/settings_provider.dart';
 import '../../core/constants/exercise_database.dart';
 import '../../models/workout_config.dart';
 import '../../providers/workout_provider.dart';
+import '../../services/workout_service.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/workout/exercise_chip.dart';
 import '../../widgets/workout/set_card.dart';
 import '../../widgets/workout/exercise_history_card.dart';
+import '../../widgets/workout/progression_suggestion_card.dart';
 import '../../widgets/workout/quick_timer_buttons.dart';
 import '../../widgets/common/custom_input.dart';
 import '../../widgets/common/custom_button.dart';
+import '../settings/exercise_detail_screen.dart';
 
 class WorkoutTab extends StatefulWidget {
   const WorkoutTab({super.key});
@@ -27,6 +30,10 @@ class _WorkoutTabState extends State<WorkoutTab> {
   final TextEditingController _weightCtrl = TextEditingController();
   final TextEditingController _repsCtrl = TextEditingController();
   final TextEditingController _noteCtrl = TextEditingController();
+
+  bool _isSuggestionAccepted = false;
+  bool _isSuggestionRejected = false;
+  String _lastSelectedExercise = '';
 
   @override
   void dispose() {
@@ -52,7 +59,6 @@ class _WorkoutTabState extends State<WorkoutTab> {
     final theme = Provider.of<ThemeManager>(context);
     final suggestion = workout.getSuggestion();
 
-    // Estado vacío: no hay grupos configurados
     if (workout.config.groups.isEmpty) {
       return Center(
         child: Padding(
@@ -196,8 +202,16 @@ class _WorkoutTabState extends State<WorkoutTab> {
 
   Widget _buildActiveWorkout(WorkoutProvider workout, SettingsProvider settings) {
     final theme = Provider.of<ThemeManager>(context);
+    
+    if (_lastSelectedExercise != workout.selectedExercise) {
+      _lastSelectedExercise = workout.selectedExercise;
+      _isSuggestionAccepted = false;
+      _isSuggestionRejected = false;
+    }
+
     final pb = workout.getPB(workout.selectedExercise);
     final last = workout.getLastTime(workout.selectedExercise);
+    final progressionSuggestion = WorkoutService.suggestNextProgression(workout.sessions, workout.selectedExercise);
 
     return SizedBox.expand(child: Column(children: [
       Container(
@@ -220,7 +234,20 @@ class _WorkoutTabState extends State<WorkoutTab> {
                   settings.translate('training').toUpperCase(),
                   style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary, letterSpacing: 1),
                 ),
-                const SizedBox(width: 48),
+                IconButton(
+                  icon: Icon(LucideIcons.trending_up, color: theme.accentColor, size: 20),
+                  tooltip: 'Ver Histórico y Gráfico',
+                  onPressed: () {
+                    if (workout.selectedExercise.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ExerciseDetailScreen(exerciseName: workout.selectedExercise),
+                        ),
+                      );
+                    }
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -288,7 +315,28 @@ class _WorkoutTabState extends State<WorkoutTab> {
                 )).toList(),
               );
             }),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // -- Tarjeta de Sugerencia de Progresión --
+            if (!_isSuggestionRejected && !progressionSuggestion.isFirstTime)
+              ProgressionSuggestionCard(
+                suggestion: progressionSuggestion,
+                isAccepted: _isSuggestionAccepted,
+                onAccept: () {
+                  setState(() {
+                    _weightCtrl.text = progressionSuggestion.suggestedWeight.toString();
+                    _repsCtrl.text = progressionSuggestion.suggestedReps.toInt().toString();
+                    _isSuggestionAccepted = true;
+                  });
+                },
+                onReject: () {
+                  setState(() {
+                    _isSuggestionAccepted = false;
+                    _isSuggestionRejected = true;
+                  });
+                },
+              ),
+
             if (pb != null) ExerciseHistoryCard(title: "RÉCORD PERSONAL", exerciseSet: pb, isPB: true, onCopy: () => _weightCtrl.text = pb.weight.toString()),
             if (last != null && pb?.id != last.id) ...[
               const SizedBox(height: 10),
@@ -319,6 +367,10 @@ class _WorkoutTabState extends State<WorkoutTab> {
                   _weightCtrl.clear();
                   _repsCtrl.clear();
                   _noteCtrl.clear();
+                  setState(() {
+                    _isSuggestionAccepted = false;
+                    _isSuggestionRejected = false;
+                  });
                 }
               },
             ),
