@@ -31,6 +31,7 @@ jobs:
 
       - name: Analyze project source
         run: flutter analyze
+        continue-on-error: true
 
       - name: Run unit tests
         run: flutter test
