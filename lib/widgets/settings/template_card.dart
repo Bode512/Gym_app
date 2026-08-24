@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/theme_manager.dart';
 
@@ -35,7 +35,7 @@ class TemplateCard extends StatelessWidget {
           style: const TextStyle(fontSize: 10, color: Colors.white24),
         ),
         trailing: IconButton(
-          icon: const Icon(LucideIcons.trash2, size: 16, color: Colors.white12),
+          icon: const Icon(LucideIcons.trash_2, size: 16, color: Colors.white12),
           onPressed: onDelete,
         ),
       ),

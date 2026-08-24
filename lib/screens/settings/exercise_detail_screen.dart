@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../core/theme/theme_manager.dart';
@@ -29,7 +29,7 @@ class ExerciseDetailScreen extends StatelessWidget {
         backgroundColor: theme.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, size: 20),
+          icon: const Icon(LucideIcons.arrow_left, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -122,7 +122,7 @@ class ExerciseDetailScreen extends StatelessWidget {
             ],
           ),
           if (set.note.isNotEmpty)
-            const Icon(LucideIcons.messageSquare, size: 14, color: Colors.white24),
+            const Icon(LucideIcons.message_square, size: 14, color: Colors.white24),
         ],
       ),
     );

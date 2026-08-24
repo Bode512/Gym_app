@@ -44,8 +44,7 @@ class _TimerWidgetState extends State<TimerWidget> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // CORREGIDO: Lucide en lugar de LucideIcons y sin const
-              Icon(Lucide.timer, color: theme.accentColor, size: 16),
+              Icon(LucideIcons.timer, color: theme.accentColor, size: 16),
               const SizedBox(width: 8),
               Text(
                 "${(workout.secondsLeft ~/ 60)}:${(workout.secondsLeft % 60).toString().padLeft(2, '0')}",
@@ -54,8 +53,7 @@ class _TimerWidgetState extends State<TimerWidget> {
               const SizedBox(width: 12),
               GestureDetector(
                 onTap: () => workout.stopTimer(),
-                // CORREGIDO: Lucide en lugar de LucideIcons y sin const
-                child: Icon(Lucide.x, color: Colors.white24, size: 16),
+                child: Icon(LucideIcons.x, color: Colors.white24, size: 16),
               )
             ],
           ),
@@ -75,8 +73,7 @@ class _TimerWidgetState extends State<TimerWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // CORREGIDO: Lucide en lugar de LucideIcons y sin const
-                Icon(Lucide.timer, color: workout.secondsLeft == 0 ? Colors.redAccent : theme.accentColor, size: 80),
+                Icon(LucideIcons.timer, color: workout.secondsLeft == 0 ? Colors.redAccent : theme.accentColor, size: 80),
                 const SizedBox(height: 20),
                 Text(
                   "${(workout.secondsLeft ~/ 60)}:${(workout.secondsLeft % 60).toString().padLeft(2, '0')}",
@@ -113,8 +110,7 @@ class _TimerWidgetState extends State<TimerWidget> {
             top: 60,
             right: 24,
             child: IconButton(
-              // CORREGIDO: Lucide en lugar de LucideIcons y sin const
-              icon: Icon(Lucide.x, color: Colors.white, size: 30),
+              icon: Icon(LucideIcons.x, color: Colors.white, size: 30),
               onPressed: () => setState(() => _isExpanded = false),
             ),
           ),

@@ -39,19 +39,10 @@ class _MainScreenState extends State<MainScreen> {
     // Determinar icono del tema para el header
     IconData themeIcon;
     switch (theme.currentTheme) {
-      // Change LucideIcons to Lucide
-      case AppTheme.cyberNeon: themeIcon = Lucide.zap; break;
-      case AppTheme.crimsonBlood: themeIcon = Lucide.flame; break;
-      case AppTheme.goldRush: themeIcon = Lucide.award; break;
-      default: themeIcon = Lucide.moon;
-      
-      // REMOVE 'const' here (Lucide icons in this library aren't compile-time constants)
-      icon: Icon(Lucide.settings, size: 20, color: Colors.white24),
-      
-      // Change the navigation items
-      _navItem(0, Lucide.play, settings.translate('today'), theme),
-      _navItem(1, Lucide.calendar, settings.translate('history'), theme),
-      _navItem(2, Lucide.trendingUp, settings.translate('progress'), theme),
+      case AppTheme.cyberNeon: themeIcon = LucideIcons.zap; break;
+      case AppTheme.crimsonBlood: themeIcon = LucideIcons.flame; break;
+      case AppTheme.goldRush: themeIcon = LucideIcons.award; break;
+      default: themeIcon = LucideIcons.moon;
     }
 
     return Scaffold(
@@ -100,7 +91,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           if (_activeTab == 0 && !workout.isSessionActive)
             IconButton(
-              icon: const Icon(LucideIcons.settings, size: 20, color: Colors.white24),
+              icon: Icon(LucideIcons.settings, size: 20, color: Colors.white24),
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
@@ -137,7 +128,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           _navItem(0, LucideIcons.play, settings.translate('today'), theme),
           _navItem(1, LucideIcons.calendar, settings.translate('history'), theme),
-          _navItem(2, LucideIcons.trendingUp, settings.translate('progress'), theme),
+          _navItem(2, LucideIcons.trending_up, settings.translate('progress'), theme),
         ],
       ),
     );

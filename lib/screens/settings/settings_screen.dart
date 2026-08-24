@@ -27,7 +27,7 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: theme.cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, size: 20),
+          icon: const Icon(LucideIcons.arrow_left, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -89,11 +89,19 @@ class SettingsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _sectionTitle(settings.translate('cycle_order')),
-                TextButton.icon(
-                  onPressed: () => _showAddGroupDialog(context, workout, settings),
-                  icon: Icon(LucideIcons.plus, size: 12, color: theme.accentColor),
-                  label: Text(settings.translate('add_group'), style: TextStyle(fontSize: 9, color: theme.accentColor)),
-                ),
+                Row(children: [
+                  TextButton.icon(
+                    onPressed: () => _showAddGroupDialog(context, workout, settings),
+                    icon: Icon(LucideIcons.plus, size: 12, color: theme.accentColor),
+                    label: Text(settings.translate('add_group'), style: TextStyle(fontSize: 9, color: theme.accentColor)),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton.icon(
+                    onPressed: () => _showRestoreRoutineDialog(context, workout, settings),
+                    icon: Icon(Icons.refresh, size: 12, color: theme.accentColor),
+                    label: Text(settings.translate('restore_routine'), style: TextStyle(fontSize: 9, color: theme.accentColor)),
+                  ),
+                ]),
               ],
             ),
             const SizedBox(height: 10),
@@ -211,6 +219,26 @@ class SettingsScreen extends StatelessWidget {
           workout.updateConfig(workout.config.copyWith(groups: newGroups));
           Navigator.pop(c);
         }, child: Text(settings.translate('confirm'), style: const TextStyle(color: Colors.redAccent))),
+      ],
+    ));
+  }
+
+  void _showRestoreRoutineDialog(BuildContext context, WorkoutProvider workout, SettingsProvider settings) {
+    showDialog(context: context, builder: (c) => AlertDialog(
+      title: Text(settings.translate('restore_routine')),
+      content: Text(settings.translate('restore_routine_confirm') ?? '¿Restaurar la rutina por defecto? Esto no eliminará tus ejercicios guardados.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(c), child: Text(settings.translate('cancel'))),
+        TextButton(onPressed: () {
+          final defaultCfg = WorkoutConfig.defaultConfig();
+          // Keep user's exercise DB and archived exercises, but reset groups and planner settings
+          final newCfg = defaultCfg.copyWith(
+            exerciseDb: workout.config.exerciseDb,
+            archivedExercises: workout.config.archivedExercises,
+          );
+          workout.updateConfig(newCfg);
+          Navigator.pop(c);
+        }, child: Text(settings.translate('confirm'))),
       ],
     ));
   }
