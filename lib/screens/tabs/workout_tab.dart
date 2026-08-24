@@ -124,7 +124,7 @@ class _WorkoutTabState extends State<WorkoutTab> {
                   const SizedBox(width: 6),
                   Text(
                     suggestion['reason']!,
-                    style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.white90, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -307,7 +307,7 @@ class _WorkoutTabState extends State<WorkoutTab> {
             const SizedBox(height: 20),
             PrimaryButton(
               label: 'GUARDAR SERIE',
-              icon: LucideIcons.plus_circle,
+              icon: LucideIcons.plus,
               onPressed: () {
                 if (_weightCtrl.text.isNotEmpty && _repsCtrl.text.isNotEmpty) {
                   workout.addSet(

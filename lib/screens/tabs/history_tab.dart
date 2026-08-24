@@ -23,7 +23,7 @@ class HistoryTab extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.history, size: 56, color: AppColors.textMuted),
+            Icon(LucideIcons.calendar, size: 56, color: AppColors.textMuted),
             const SizedBox(height: 16),
             Text(
               settings.translate('no_activity').toUpperCase(),

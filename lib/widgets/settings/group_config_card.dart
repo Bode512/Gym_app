@@ -86,7 +86,7 @@ class GroupConfigCard extends StatelessWidget {
                     onDelete: () => workout.deleteExercise(groupName, ex),
                   )),
               IconButton(
-                icon: const Icon(LucideIcons.plus_circle, size: 22, color: AppColors.success),
+                icon: const Icon(LucideIcons.plus, size: 22, color: AppColors.success),
                 onPressed: onAddExercise,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
