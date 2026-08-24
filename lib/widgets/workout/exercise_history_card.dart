@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-//import 'package:lucide_icons/lucide_icons.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../models/exercise_set.dart';
 
 class ExerciseHistoryCard extends StatelessWidget {
@@ -23,11 +24,13 @@ class ExerciseHistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeManager>(context);
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: isPB ? Colors.amber.withOpacity(0.2) : Colors.white.withOpacity(0.05)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isPB ? AppColors.warning.withOpacity(0.3) : AppColors.borderDark,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,35 +38,44 @@ class ExerciseHistoryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: isPB ? Colors.amber : Colors.white38,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
+              Row(
+                children: [
+                  if (isPB) ...[
+                    const Icon(LucideIcons.trophy, size: 14, color: AppColors.warning),
+                    const SizedBox(width: 6),
+                  ],
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      color: isPB ? AppColors.warning : AppColors.textMuted,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
               ),
               if (onCopy != null)
                 IconButton(
-                  icon: const Icon(LucideIcons.copy, size: 16),
+                  icon: const Icon(LucideIcons.copy, size: 14, color: AppColors.textSecondary),
                   onPressed: onCopy,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
+                  tooltip: 'Copiar peso',
                 ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 6),
           Text(
             "${exerciseSet.weight}kg x ${exerciseSet.reps.toInt()}",
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
           if (exerciseSet.note.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.only(top: 6),
               child: Text(
                 "Nota: ${exerciseSet.note}",
-                style: const TextStyle(fontSize: 10, color: Colors.white54, fontStyle: FontStyle.italic),
+                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textSecondary, fontStyle: FontStyle.italic),
               ),
             ),
         ],

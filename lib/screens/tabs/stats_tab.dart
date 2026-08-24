@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/workout_provider.dart';
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../models/exercise_set.dart';
 
 class StatsTab extends StatelessWidget {
@@ -13,18 +17,31 @@ class StatsTab extends StatelessWidget {
     final theme = Provider.of<ThemeManager>(context);
     final workout = Provider.of<WorkoutProvider>(context);
 
+    if (workout.config.groups.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay rutinas para mostrar estadísticas',
+          style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 13),
+        ),
+      );
+    }
+
     return ListView(
       padding: const EdgeInsets.all(24),
       children: workout.config.groups.map((group) => Container(
-        margin: const EdgeInsets.only(bottom: 15),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: AppColors.borderDark),
         ),
         child: ExpansionTile(
           iconColor: theme.accentColor,
-          title: Text(group, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+          collapsedIconColor: AppColors.textMuted,
+          title: Text(
+            group,
+            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          ),
           children: (workout.config.exerciseDb[group] ?? []).map((ex) {
             final pb = workout.getPB(ex);
             final history = workout.sessions
@@ -50,17 +67,23 @@ class _StatDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeManager>(context);
 
-    // Gráfica basada en fórmula Peso + (Reps / 2)
     final spotsStrength = history.reversed.toList().asMap().entries.map((e) {
       double score = e.value.calculateScore();
       return FlSpot(e.key.toDouble(), score);
     }).toList();
 
     return ExpansionTile(
-      title: Text(exercise, style: const TextStyle(fontSize: 11, color: Colors.white60)),
-      trailing: Text(
-        pb != null ? "${pb!.weight}kg" : "-",
-        style: TextStyle(color: theme.accentColor, fontWeight: FontWeight.bold),
+      title: Text(exercise, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (pb != null) const Icon(LucideIcons.trophy, size: 14, color: AppColors.warning),
+          const SizedBox(width: 4),
+          Text(
+            pb != null ? "${pb!.weight}kg" : "-",
+            style: GoogleFonts.plusJakartaSans(color: theme.accentColor, fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+        ],
       ),
       children: [
         if (history.isNotEmpty) ...[
@@ -92,8 +115,8 @@ class _StatDetail extends StatelessWidget {
           ),
           ...history.take(5).map((e) => ListTile(
             dense: true,
-            title: Text("${e.weight}kg x ${e.reps.toInt()}", style: const TextStyle(fontSize: 10, color: Colors.white)),
-            subtitle: Text("${e.date.day}/${e.date.month}", style: const TextStyle(fontSize: 8, color: Colors.white24)),
+            title: Text("${e.weight}kg x ${e.reps.toInt()}", style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
+            subtitle: Text("${e.date.day}/${e.date.month}/${e.date.year}", style: GoogleFonts.plusJakartaSans(fontSize: 9, color: AppColors.textMuted)),
           )).toList(),
         ]
       ],

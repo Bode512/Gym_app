@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/constants/exercise_database.dart';
 
 class ExerciseSearchDialog extends StatefulWidget {
@@ -20,8 +23,10 @@ class _ExerciseSearchDialogState extends State<ExerciseSearchDialog> {
     final theme = Provider.of<ThemeManager>(context);
 
     return AlertDialog(
-      title: const Text('AÑADIR EJERCICIO'),
-      backgroundColor: theme.cardColor,
+      title: Text(
+        'AÑADIR EJERCICIO',
+        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.textPrimary),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -37,13 +42,10 @@ class _ExerciseSearchDialogState extends State<ExerciseSearchDialog> {
               return TextField(
                 controller: controller,
                 focusNode: focusNode,
-                style: const TextStyle(color: Colors.white),
+                style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary),
                 decoration: InputDecoration(
-                  hintText: 'Escribe ej: "PRESS"',
-                  hintStyle: const TextStyle(color: Colors.white24),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: theme.accentColor.withOpacity(0.3)),
-                  ),
+                  hintText: 'Escribe ej: "PRESS DE BANCA"',
+                  hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.textMuted),
                 ),
                 onChanged: (v) => setState(() => selectedFromSearch = v.toUpperCase()),
               );
@@ -54,7 +56,7 @@ class _ExerciseSearchDialogState extends State<ExerciseSearchDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('CANCELAR', style: TextStyle(color: Colors.white24)),
+          child: Text('CANCELAR', style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted)),
         ),
         TextButton(
           onPressed: () {
@@ -63,7 +65,7 @@ class _ExerciseSearchDialogState extends State<ExerciseSearchDialog> {
             }
             Navigator.pop(context);
           },
-          child: Text('AÑADIR', style: TextStyle(color: theme.accentColor)),
+          child: Text('AÑADIR', style: GoogleFonts.plusJakartaSans(color: theme.accentColor, fontWeight: FontWeight.bold)),
         ),
       ],
     );

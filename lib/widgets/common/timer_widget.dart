@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../core/theme/theme_manager.dart';
-import '../../providers/workout_provider.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
+import '../../providers/workout_provider.dart';
 
 class TimerWidget extends StatefulWidget {
   const TimerWidget({super.key});
@@ -29,7 +31,7 @@ class _TimerWidgetState extends State<TimerWidget> {
     }
 
     return Positioned(
-      bottom: workout.isSessionActive ? 40 : 110,
+      bottom: workout.isSessionActive ? 30 : 100,
       right: 20,
       child: GestureDetector(
         onTap: () => setState(() => _isExpanded = true),
@@ -37,23 +39,29 @@ class _TimerWidgetState extends State<TimerWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: theme.cardColor,
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: theme.accentColor.withOpacity(0.5)),
-            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 10)],
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: theme.accentColor, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: theme.accentColor.withOpacity(0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              )
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(LucideIcons.timer, color: theme.accentColor, size: 16),
+              Icon(LucideIcons.timer, color: theme.accentColor, size: 18),
               const SizedBox(width: 8),
               Text(
                 "${(workout.secondsLeft ~/ 60)}:${(workout.secondsLeft % 60).toString().padLeft(2, '0')}",
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                style: GoogleFonts.outfit(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
               ),
               const SizedBox(width: 12),
               GestureDetector(
                 onTap: () => workout.stopTimer(),
-                child: Icon(LucideIcons.x, color: Colors.white24, size: 16),
+                child: const Icon(LucideIcons.x, color: AppColors.textMuted, size: 16),
               )
             ],
           ),
@@ -73,18 +81,18 @@ class _TimerWidgetState extends State<TimerWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(LucideIcons.timer, color: workout.secondsLeft == 0 ? Colors.redAccent : theme.accentColor, size: 80),
+                Icon(LucideIcons.timer, color: workout.secondsLeft == 0 ? AppColors.error : theme.accentColor, size: 80),
                 const SizedBox(height: 20),
                 Text(
                   "${(workout.secondsLeft ~/ 60)}:${(workout.secondsLeft % 60).toString().padLeft(2, '0')}",
-                  style: TextStyle(
-                    color: workout.secondsLeft == 0 ? Colors.redAccent : Colors.white,
-                    fontSize: 120, // Texto gigante
+                  style: GoogleFonts.outfit(
+                    color: workout.secondsLeft == 0 ? AppColors.error : Colors.white,
+                    fontSize: 110,
                     fontWeight: FontWeight.w900,
                     fontStyle: FontStyle.italic,
-                    letterSpacing: -5,
+                    letterSpacing: -4,
                     shadows: [
-                      Shadow(color: (workout.secondsLeft == 0 ? Colors.redAccent : theme.accentColor).withOpacity(0.5), blurRadius: 30)
+                      Shadow(color: (workout.secondsLeft == 0 ? AppColors.error : theme.accentColor).withOpacity(0.5), blurRadius: 30)
                     ]
                   ),
                 ),
@@ -94,12 +102,12 @@ class _TimerWidgetState extends State<TimerWidget> {
                   children: [
                     if (workout.secondsLeft > 0) ...[
                       _extraBtn("+30s", () => workout.startRestTimer(customSeconds: workout.secondsLeft + 30)),
-                      const SizedBox(width: 20),
-                      _extraBtn("STOP", () => workout.stopTimer(), color: Colors.redAccent),
+                      const SizedBox(width: 16),
+                      _extraBtn("PARAR", () => workout.stopTimer(), color: AppColors.error),
                     ] else ...[
-                      _extraBtn("REPEAT", () => workout.startRestTimer(), color: theme.accentColor),
-                      const SizedBox(width: 20),
-                      _extraBtn("CLOSE", () => workout.stopTimer(), color: Colors.white24),
+                      _extraBtn("REPETIR", () => workout.startRestTimer(), color: theme.accentColor),
+                      const SizedBox(width: 16),
+                      _extraBtn("CERRAR", () => workout.stopTimer(), color: AppColors.surfaceSoft),
                     ],
                   ],
                 )
@@ -107,10 +115,10 @@ class _TimerWidgetState extends State<TimerWidget> {
             ),
           ),
           Positioned(
-            top: 60,
-            right: 24,
+            top: 50,
+            right: 20,
             child: IconButton(
-              icon: Icon(LucideIcons.x, color: Colors.white, size: 30),
+              icon: const Icon(LucideIcons.x, color: Colors.white, size: 28),
               onPressed: () => setState(() => _isExpanded = false),
             ),
           ),
@@ -123,12 +131,15 @@ class _TimerWidgetState extends State<TimerWidget> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         decoration: BoxDecoration(
-          color: color ?? Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(15),
+          color: color ?? AppColors.surfaceSoft,
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        child: Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+        ),
       ),
     );
   }

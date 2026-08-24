@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-//import 'package:lucide_icons/lucide_icons.dart';
-import '../../models/workout_config.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
+
+import '../../models/workout_config.dart';
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../widgets/settings/group_config_card.dart';
 import '../../widgets/settings/day_selector.dart';
 import '../../widgets/settings/exercise_manager.dart';
-
-// Add this:
-import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../core/constants/exercise_database.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -24,9 +24,10 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(settings.translate('settings'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-        backgroundColor: theme.cardColor,
-        elevation: 0,
+        title: Text(
+          settings.translate('settings').toUpperCase(),
+          style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+        ),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrow_left, size: 20),
           onPressed: () => Navigator.pop(context),
@@ -36,32 +37,39 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         children: [
           _sectionTitle(settings.translate('language')),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(children: [
-            _langBtn(context, 'ES', 'es', settings),
-            const SizedBox(width: 10),
-            _langBtn(context, 'EN', 'en', settings),
-            const SizedBox(width: 10),
-            _langBtn(context, 'AR', 'ar', settings),
+            _langBtn(context, 'ESPAÑOL', 'es', settings),
+            const SizedBox(width: 8),
+            _langBtn(context, 'ENGLISH', 'en', settings),
+            const SizedBox(width: 8),
+            _langBtn(context, 'العربية', 'ar', settings),
           ]),
-          const SizedBox(height: 25),
+          const SizedBox(height: 28),
 
           _sectionTitle(settings.translate('rest_between_sets')),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            margin: const EdgeInsets.only(top: 10, bottom: 25),
-            decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(15)),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            margin: const EdgeInsets.only(top: 12, bottom: 28),
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.borderDark),
+            ),
             child: Row(children: [
-              Text('${workout.config.defaultRestSeconds}s', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              Text(
+                '${workout.config.defaultRestSeconds}s',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
+              ),
               const Spacer(),
               IconButton(
-                icon: const Icon(LucideIcons.minus, color: Colors.white), 
+                icon: const Icon(LucideIcons.minus, color: AppColors.textSecondary, size: 20), 
                 onPressed: () => workout.updateConfig(workout.config.copyWith(
                   defaultRestSeconds: (workout.config.defaultRestSeconds - 10).clamp(30, 600),
                 )),
               ),
               IconButton(
-                icon: const Icon(LucideIcons.plus, color: Colors.white), 
+                icon: const Icon(LucideIcons.plus, color: AppColors.textSecondary, size: 20), 
                 onPressed: () => workout.updateConfig(workout.config.copyWith(
                   defaultRestSeconds: (workout.config.defaultRestSeconds + 10).clamp(30, 600),
                 )),
@@ -70,17 +78,17 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _sectionTitle(settings.translate('planner_mode')),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(children: [
             _modeBtn(context, settings.translate('cycle'), 'sequential', workout.config.plannerMode == 'sequential'),
             const SizedBox(width: 10),
             _modeBtn(context, settings.translate('calendar'), 'calendar', workout.config.plannerMode == 'calendar'),
           ]),
-          const SizedBox(height: 25),
+          const SizedBox(height: 28),
 
           if (workout.config.plannerMode == 'calendar') ...[
             _sectionTitle(settings.translate('day_assignment')),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             ...workout.config.weeklyPlan.keys.map((day) => DaySelector(
               day: day,
               selectedGroup: workout.config.weeklyPlan[day]!,
@@ -93,19 +101,19 @@ class SettingsScreen extends StatelessWidget {
                 Row(children: [
                   TextButton.icon(
                     onPressed: () => _showAddGroupDialog(context, workout, settings),
-                    icon: Icon(LucideIcons.plus, size: 12, color: theme.accentColor),
-                    label: Text(settings.translate('add_group'), style: TextStyle(fontSize: 9, color: theme.accentColor)),
+                    icon: Icon(LucideIcons.plus, size: 14, color: theme.accentColor),
+                    label: Text(settings.translate('add_group'), style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.bold, color: theme.accentColor)),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   TextButton.icon(
                     onPressed: () => _showRestoreRoutineDialog(context, workout, settings),
-                    icon: Icon(Icons.refresh, size: 12, color: theme.accentColor),
-                    label: Text(settings.translate('restore_routine'), style: TextStyle(fontSize: 9, color: theme.accentColor)),
+                    icon: Icon(LucideIcons.rotate_ccw, size: 14, color: theme.accentColor),
+                    label: Text(settings.translate('restore_routine'), style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.bold, color: theme.accentColor)),
                   ),
                 ]),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             ReorderableListView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -151,14 +159,27 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? theme.accentColor : theme.cardColor, 
-          borderRadius: BorderRadius.circular(10)
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? theme.accentColor : AppColors.borderDark),
         ),
-        child: Center(child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.white38))),
+        child: Center(
+          child: Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: isSelected ? Colors.white : AppColors.textMuted,
+            ),
+          ),
+        ),
       ),
     ));
   }
 
-  Widget _sectionTitle(String t) => Text(t, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white38, letterSpacing: 1.5));
+  Widget _sectionTitle(String t) => Text(
+    t.toUpperCase(),
+    style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1.5),
+  );
 
   Widget _modeBtn(BuildContext context, String l, String m, bool isSelected) {
     final theme = Provider.of<ThemeManager>(context);
@@ -166,12 +187,22 @@ class SettingsScreen extends StatelessWidget {
     return Expanded(child: GestureDetector(
       onTap: () => workout.updateConfig(workout.config.copyWith(plannerMode: m)),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: isSelected ? theme.accentColor : theme.cardColor, 
-          borderRadius: BorderRadius.circular(12)
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? theme.accentColor : AppColors.borderDark),
         ),
-        child: Center(child: Text(l, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.white38))),
+        child: Center(
+          child: Text(
+            l.toUpperCase(),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: isSelected ? Colors.white : AppColors.textMuted,
+            ),
+          ),
+        ),
       ),
     ));
   }
@@ -188,12 +219,11 @@ class SettingsScreen extends StatelessWidget {
     final ctrl = TextEditingController();
     showDialog(context: context, builder: (c) => AlertDialog(
       title: Text(settings.translate('new_routine')),
-      backgroundColor: const Color(0xFF0F172A),
       content: TextField(
         controller: ctrl,
         autofocus: true,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(hintText: 'Ej: BRAZO, PIERNA...', hintStyle: const TextStyle(color: Colors.white24)),
+        style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary),
+        decoration: const InputDecoration(hintText: 'Ej: BRAZO, PIERNA...'),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(c), child: Text(settings.translate('cancel'))),
@@ -219,13 +249,12 @@ class SettingsScreen extends StatelessWidget {
           final newGroups = List<String>.from(workout.config.groups)..removeAt(index);
           workout.updateConfig(workout.config.copyWith(groups: newGroups));
           Navigator.pop(c);
-        }, child: Text(settings.translate('confirm'), style: const TextStyle(color: Colors.redAccent))),
+        }, child: Text(settings.translate('confirm'), style: const TextStyle(color: AppColors.error))),
       ],
     ));
   }
 
   void _showRestoreRoutineDialog(BuildContext context, WorkoutProvider workout, SettingsProvider settings) {
-    // Let user choose a routine structure (like first-time setup), then apply it
     showDialog(context: context, builder: (c) {
       return AlertDialog(
         title: Text(settings.translate('restore_routine')),
@@ -234,11 +263,11 @@ class SettingsScreen extends StatelessWidget {
           child: ListView(
             shrinkWrap: true,
             children: ExerciseDatabase.routineStructures.keys.map((name) => ListTile(
-              title: Text(name),
+              title: Text(name, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600)),
+              trailing: const Icon(LucideIcons.chevron_right, size: 16),
               onTap: () {
                 final prevConfig = workout.config;
                 final chosen = ExerciseDatabase.routineStructures[name] ?? [];
-                // Build new groups and exerciseDb entries for the chosen structure
                 final newGroups = List<String>.from(chosen);
                 final newDb = Map<String, List<String>>.from(workout.config.exerciseDb);
                 for (final g in chosen) {
@@ -258,7 +287,6 @@ class SettingsScreen extends StatelessWidget {
                 workout.updateConfig(merged);
                 Navigator.pop(c);
 
-                // Show undo snackbar
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text('Rutina aplicada: $name'),
                   action: SnackBarAction(label: 'Deshacer', onPressed: () {
@@ -275,4 +303,3 @@ class SettingsScreen extends StatelessWidget {
     });
   }
 }
-

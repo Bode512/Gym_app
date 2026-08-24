@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../models/workout_config.dart';
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/workout_provider.dart';
-import '../../models/workout_config.dart';
 
 class DaySelector extends StatelessWidget {
   final String day;
@@ -20,23 +20,32 @@ class DaySelector extends StatelessWidget {
     final groups = [settings.translate('rest_day'), ...workout.config.groups];
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderDark),
       ),
       child: Row(
         children: [
-          Expanded(child: Text(day, style: const TextStyle(fontSize: 12, color: Colors.white70))),
+          Expanded(
+            child: Text(
+              day,
+              style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+            ),
+          ),
           DropdownButton<String>(
             value: selectedGroup,
             underline: const SizedBox(),
             dropdownColor: theme.cardColor,
+            borderRadius: BorderRadius.circular(14),
             items: groups.map((g) => DropdownMenuItem(
               value: g,
-              child: Text(g, style: const TextStyle(fontSize: 10, color: Colors.white)),
+              child: Text(
+                g,
+                style: GoogleFonts.plusJakartaSans(fontSize: 12, color: theme.accentColor, fontWeight: FontWeight.bold),
+              ),
             )).toList(),
             onChanged: (v) {
               if (v != null) {
@@ -51,4 +60,3 @@ class DaySelector extends StatelessWidget {
     );
   }
 }
-

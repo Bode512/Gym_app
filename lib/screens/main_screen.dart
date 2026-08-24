@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-//import 'package:lucide_icons/lucide_icons.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/settings_provider.dart';
 import '../core/theme/theme_manager.dart';
 import '../core/theme/app_theme.dart';
@@ -10,9 +12,6 @@ import 'tabs/workout_tab.dart';
 import 'tabs/history_tab.dart';
 import 'tabs/stats_tab.dart';
 import 'settings/settings_screen.dart';
-
-// Add this:
-import 'package:flutter_lucide/flutter_lucide.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -71,14 +70,18 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildHeader(ThemeManager theme, WorkoutProvider workout, IconData themeIcon, SettingsProvider settings) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 60, 24, 20),
-      color: theme.cardColor.withOpacity(0.8),
+      padding: const EdgeInsets.fromLTRB(20, 52, 20, 16),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        border: const Border(bottom: BorderSide(color: AppColors.borderDark)),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: Icon(themeIcon, color: theme.accentColor, size: 24),
+            icon: Icon(themeIcon, color: theme.accentColor, size: 22),
             onPressed: () => theme.cycleTheme(),
+            tooltip: 'Cambiar Tema',
           ),
           Builder(builder: (context) {
             final title = settings.translate('onboarding_title');
@@ -87,9 +90,9 @@ class _MainScreenState extends State<MainScreen> {
             final restPart = parts.length > 1 ? parts.sublist(1).join(' ') : '';
             return RichText(
               text: TextSpan(
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic),
+                style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic),
                 children: [
-                  TextSpan(text: firstPart, style: const TextStyle(color: Colors.white)),
+                  TextSpan(text: firstPart, style: const TextStyle(color: AppColors.textPrimary)),
                   if (restPart.isNotEmpty)
                     TextSpan(text: ' $restPart', style: TextStyle(color: theme.accentColor)),
                 ],
@@ -98,22 +101,24 @@ class _MainScreenState extends State<MainScreen> {
           }),
           if (_activeTab == 0 && !workout.isSessionActive)
             IconButton(
-              icon: Icon(LucideIcons.settings, size: 20, color: Colors.white24),
+              icon: const Icon(LucideIcons.settings, size: 20, color: AppColors.textSecondary),
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
+              tooltip: settings.translate('settings'),
             )
           else if (workout.isSessionActive)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: theme.accentColor.withOpacity(0.1),
+                color: theme.accentColor.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: theme.accentColor.withOpacity(0.3)),
               ),
               child: Text(
                 workout.activeWorkoutType,
-                style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: theme.accentColor),
+                style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: theme.accentColor),
               ),
             )
           else
@@ -125,15 +130,15 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildBottomNav(ThemeManager theme, SettingsProvider settings) {
     return Container(
-      padding: const EdgeInsets.only(bottom: 40, top: 15),
+      padding: const EdgeInsets.only(bottom: 24, top: 12),
       decoration: BoxDecoration(
-        color: theme.cardColor.withOpacity(0.5),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+        color: theme.cardColor,
+        border: const Border(top: BorderSide(color: AppColors.borderDark)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _navItem(0, LucideIcons.play, settings.translate('today'), theme),
+          _navItem(0, LucideIcons.dumbbell, settings.translate('today'), theme),
           _navItem(1, LucideIcons.calendar, settings.translate('history'), theme),
           _navItem(2, LucideIcons.trending_up, settings.translate('progress'), theme),
         ],
@@ -146,15 +151,15 @@ class _MainScreenState extends State<MainScreen> {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(ic, color: _activeTab == i ? theme.accentColor : Colors.white24, size: 20),
+        Icon(ic, color: _activeTab == i ? theme.accentColor : AppColors.textMuted, size: 20),
         const SizedBox(height: 4),
         Text(
           l,
-          style: TextStyle(
-            fontSize: 8,
-            color: _activeTab == i ? theme.accentColor : Colors.white24,
-            fontWeight: FontWeight.bold
-          )
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 10,
+            color: _activeTab == i ? theme.accentColor : AppColors.textMuted,
+            fontWeight: _activeTab == i ? FontWeight.bold : FontWeight.w600,
+          ),
         ),
       ],
     ),

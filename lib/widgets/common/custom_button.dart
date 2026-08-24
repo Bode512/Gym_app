@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String label;
@@ -8,7 +11,6 @@ class PrimaryButton extends StatelessWidget {
   final Color? color;
   final bool isLoading;
   final IconData? icon;
-
   final bool fullWidth;
 
   const PrimaryButton({
@@ -24,13 +26,15 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeManager>(context);
+    final buttonColor = color ?? theme.accentColor;
+
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: color ?? theme.accentColor,
+        backgroundColor: buttonColor,
         minimumSize: Size(fullWidth ? double.infinity : 0, 50),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
       ),
       child: isLoading
@@ -41,14 +45,20 @@ class PrimaryButton extends StatelessWidget {
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
               children: [
                 if (icon != null) ...[
                   Icon(icon, size: 18, color: Colors.white),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                 ],
                 Text(
                   label,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ],
             ),
@@ -76,21 +86,28 @@ class SecondaryButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(double.infinity, 50),
         side: BorderSide(color: theme.accentColor.withOpacity(0.5)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 16, color: theme.accentColor),
+            Icon(icon, size: 18, color: theme.accentColor),
             const SizedBox(width: 8),
           ],
           Text(
             label,
-            style: TextStyle(color: theme.accentColor, fontWeight: FontWeight.bold, fontSize: 13),
+            style: GoogleFonts.plusJakartaSans(
+              color: theme.accentColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              letterSpacing: 0.5,
+            ),
           ),
         ],
       ),
     );
   }
 }
+

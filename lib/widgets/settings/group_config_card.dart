@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-//import 'package:lucide_icons/lucide_icons.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/settings_provider.dart';
 import '../../models/workout_config.dart';
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../providers/workout_provider.dart';
-
-// Add this:
-import 'package:flutter_lucide/flutter_lucide.dart';
 
 class GroupConfigCard extends StatelessWidget {
   final String groupName;
@@ -36,12 +36,12 @@ class GroupConfigCard extends StatelessWidget {
     final archived = workout.config.archivedExercises[groupName] ?? [];
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: AppColors.borderDark),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,23 +51,24 @@ class GroupConfigCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   groupName,
-                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1),
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary, letterSpacing: 0.5),
                 ),
               ),
-              IconButton(icon: const Icon(LucideIcons.trash_2, size: 16, color: Colors.redAccent), onPressed: onDelete),
-              IconButton(icon: const Icon(LucideIcons.arrow_up, size: 16), onPressed: onMoveUp),
-              IconButton(icon: const Icon(LucideIcons.arrow_down, size: 16), onPressed: onMoveDown),
+              IconButton(icon: const Icon(LucideIcons.trash_2, size: 16, color: AppColors.error), onPressed: onDelete),
+              IconButton(icon: const Icon(LucideIcons.arrow_up, size: 16, color: AppColors.textSecondary), onPressed: onMoveUp),
+              IconButton(icon: const Icon(LucideIcons.arrow_down, size: 16, color: AppColors.textSecondary), onPressed: onMoveDown),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             settings.translate('active_exercises').toUpperCase(),
-            style: const TextStyle(fontSize: 8, color: Colors.white24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.plusJakartaSans(fontSize: 9, color: AppColors.textMuted, fontWeight: FontWeight.bold, letterSpacing: 1),
           ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               ...exercises.map((ex) => _ExerciseTag(
                     name: ex,
@@ -85,7 +86,7 @@ class GroupConfigCard extends StatelessWidget {
                     onDelete: () => workout.deleteExercise(groupName, ex),
                   )),
               IconButton(
-                icon: const Icon(LucideIcons.plus, size: 20, color: Colors.greenAccent),
+                icon: const Icon(LucideIcons.plus_circle, size: 22, color: AppColors.success),
                 onPressed: onAddExercise,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -93,10 +94,10 @@ class GroupConfigCard extends StatelessWidget {
             ],
           ),
           if (archived.isNotEmpty) ...[
-            const SizedBox(height: 15),
+            const SizedBox(height: 16),
             Text(
               settings.translate('archived').toUpperCase(),
-              style: const TextStyle(fontSize: 8, color: Colors.orangeAccent, fontWeight: FontWeight.bold),
+              style: GoogleFonts.plusJakartaSans(fontSize: 9, color: AppColors.warning, fontWeight: FontWeight.bold, letterSpacing: 1),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -114,9 +115,9 @@ class GroupConfigCard extends StatelessWidget {
                   ));
                 },
                 child: Chip(
-                  backgroundColor: Colors.white10,
-                  label: Text(ex, style: const TextStyle(fontSize: 8, color: Colors.white38)),
-                  avatar: const Icon(LucideIcons.rotate_ccw, size: 10, color: Colors.white38),
+                  backgroundColor: AppColors.surfaceSoft,
+                  label: Text(ex, style: GoogleFonts.plusJakartaSans(fontSize: 9, color: AppColors.textMuted)),
+                  avatar: const Icon(LucideIcons.rotate_ccw, size: 12, color: AppColors.textMuted),
                 ),
               )).toList(),
             ),
@@ -137,30 +138,33 @@ class _ExerciseTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: 10),
+      padding: const EdgeInsets.only(left: 12, right: 4, top: 4, bottom: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.surfaceSoft,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.borderDark),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(name, style: const TextStyle(fontSize: 9, color: Colors.white70)),
+          Text(name, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
+          const SizedBox(width: 4),
           IconButton(
-            icon: const Icon(LucideIcons.archive, size: 12, color: Colors.orangeAccent),
+            icon: const Icon(LucideIcons.archive, size: 13, color: AppColors.warning),
             onPressed: onArchive,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.all(4),
             constraints: const BoxConstraints(),
+            tooltip: 'Archivar',
           ),
           IconButton(
-            icon: const Icon(Icons.close, size: 12, color: Colors.redAccent),
+            icon: const Icon(LucideIcons.x, size: 13, color: AppColors.error),
             onPressed: onDelete,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.all(4),
             constraints: const BoxConstraints(),
+            tooltip: 'Eliminar',
           ),
         ],
       ),
     );
   }
 }
-

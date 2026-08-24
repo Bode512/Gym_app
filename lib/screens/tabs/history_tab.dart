@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/settings_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../widgets/workout/set_card.dart';
 
 class HistoryTab extends StatelessWidget {
@@ -16,7 +20,22 @@ class HistoryTab extends StatelessWidget {
 
     if (workout.sessions.isEmpty) {
       return Center(
-        child: Text(settings.translate('no_activity'), style: const TextStyle(color: Colors.white12, fontSize: 10)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(LucideIcons.history, size: 56, color: AppColors.textMuted),
+            const SizedBox(height: 16),
+            Text(
+              settings.translate('no_activity').toUpperCase(),
+              style: GoogleFonts.outfit(color: AppColors.textSecondary, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Completa tu primer entrenamiento para guardarlo aquí.',
+              style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 12),
+            ),
+          ],
+        ),
       );
     }
 
@@ -32,23 +51,27 @@ class HistoryTab extends StatelessWidget {
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 20),
             margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(15)),
-            child: const Icon(Icons.delete, color: Colors.white),
+            decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(16)),
+            child: const Icon(LucideIcons.trash_2, color: Colors.white, size: 20),
           ),
           onDismissed: (_) => workout.deleteSession(session.id),
           child: Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
               color: theme.cardColor,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.borderDark),
             ),
             child: ExpansionTile(
               iconColor: theme.accentColor,
-              title: Text(session.type, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+              collapsedIconColor: AppColors.textMuted,
+              title: Text(
+                session.type,
+                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              ),
               subtitle: Text(
-                "${session.date.day}/${session.date.month} - ${session.exercises.length} ${settings.translate('all_sets').toLowerCase()}",
-                style: const TextStyle(fontSize: 10, color: Colors.white24),
+                "${session.date.day}/${session.date.month}/${session.date.year} • ${session.exercises.length} ${settings.translate('all_sets').toLowerCase()}",
+                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textSecondary),
               ),
               children: session.exercises.map((s) => SetCard(exerciseSet: s)).toList(),
             ),

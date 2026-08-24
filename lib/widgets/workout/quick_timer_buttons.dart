@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/theme_manager.dart';
+import '../../core/theme/app_theme.dart';
 import '../../providers/workout_provider.dart';
 
 class QuickTimerButtons extends StatelessWidget {
@@ -15,25 +17,27 @@ class QuickTimerButtons extends StatelessWidget {
 
     return Wrap(
       spacing: 8,
+      runSpacing: 8,
       children: presets.map((seconds) {
         final bool isDefault = seconds == workout.config.defaultRestSeconds;
         return GestureDetector(
           onTap: () => workout.startRestTimer(customSeconds: seconds),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: isDefault ? theme.accentColor.withOpacity(0.2) : theme.cardColor,
-              borderRadius: BorderRadius.circular(20),
+              color: isDefault ? theme.accentColor.withOpacity(0.15) : theme.cardColor,
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isDefault ? theme.accentColor : Colors.white.withOpacity(0.1),
+                color: isDefault ? theme.accentColor : AppColors.borderDark,
+                width: isDefault ? 1.5 : 1.0,
               ),
             ),
             child: Text(
               "${seconds}s",
-              style: TextStyle(
-                fontSize: 10,
-                color: isDefault ? theme.accentColor : Colors.white60,
-                fontWeight: isDefault ? FontWeight.bold : FontWeight.normal,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                color: isDefault ? theme.accentColor : AppColors.textSecondary,
+                fontWeight: isDefault ? FontWeight.bold : FontWeight.w600,
               ),
             ),
           ),
