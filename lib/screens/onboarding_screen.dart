@@ -133,7 +133,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onTap: () async {
                       // Actualizar grupos según la estructura
                       final newGroups = structures[key]!;
-                      workout.updateConfig(workout.config.copyWith(groups: newGroups));
+
+                      // Poblar exerciseDb con ejercicios por defecto para cada grupo
+                      final newDb = Map<String, List<String>>.from(workout.config.exerciseDb);
+                      for (final group in newGroups) {
+                        if (!newDb.containsKey(group) || newDb[group]!.isEmpty) {
+                          final defaults = ExerciseDatabase.defaultExerciseDb[group];
+                          newDb[group] = defaults != null ? List<String>.from(defaults) : [];
+                        }
+                      }
+
+                      workout.updateConfig(workout.config.copyWith(groups: newGroups, exerciseDb: newDb));
                       
                       // Marcar onboarding como completado
                       await settings.completeOnboarding();

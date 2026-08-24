@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../core/constants/exercise_database.dart';
+import '../../models/workout_config.dart';
 import '../../providers/workout_provider.dart';
 import '../../widgets/workout/exercise_chip.dart';
 import '../../widgets/workout/set_card.dart';
@@ -45,6 +46,48 @@ class _WorkoutTabState extends State<WorkoutTab> {
 
   Widget _buildInactiveWorkout(WorkoutProvider workout, SettingsProvider settings) {
     final suggestion = workout.getSuggestion();
+
+    // Estado vacío: no hay grupos configurados
+    if (workout.config.groups.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.fitness_center, size: 64, color: Colors.white.withOpacity(0.3)),
+              const SizedBox(height: 20),
+              const Text(
+                'No hay rutinas configuradas',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Parece que tu configuración está vacía. Restaura los ejercicios por defecto para comenzar.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5)),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  final defaults = WorkoutConfig.defaultConfig();
+                  workout.updateConfig(defaults);
+                },
+                icon: const Icon(Icons.restore, size: 18),
+                label: const Text('Restaurar ejercicios por defecto'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -162,7 +205,9 @@ class _WorkoutTabState extends State<WorkoutTab> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           children: [
             Builder(builder: (_) {
-              final exercises = workout.config.exerciseDb[workout.activeWorkoutType] ?? [];
+              // Usar la lista pre-resuelta al iniciar sesión para evitar
+              // fallos de lookup por diferencias de formato en las claves del mapa.
+              final exercises = workout.activeExercises;
               if (exercises.isEmpty) {
                 // Show options to continue with another group or finish
                 return Column(children: [

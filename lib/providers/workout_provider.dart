@@ -6,6 +6,7 @@ import '../models/workout_config.dart';
 import '../services/storage_service.dart';
 import '../services/workout_service.dart';
 import '../core/utils/haptic_utils.dart';
+import '../core/constants/exercise_database.dart';
 
 class WorkoutProvider extends ChangeNotifier {
   final StorageService _storage = StorageService();
@@ -19,6 +20,9 @@ class WorkoutProvider extends ChangeNotifier {
   String _activeWorkoutType = '';
   List<ExerciseSet> _currentSessionExercises = [];
   String _selectedExercise = '';
+  // Lista de ejercicios activos — se carga al iniciar sesión para evitar
+  // problemas de lookup por claves con formato diferente en el mapa.
+  List<String> _activeExercises = [];
   
   // -- Timer State --
   Timer? _restTimer;
@@ -32,6 +36,8 @@ class WorkoutProvider extends ChangeNotifier {
   bool get isSessionActive => _isSessionActive;
   bool get isPaused => _isPaused;
   String get activeWorkoutType => _activeWorkoutType;
+  /// Ejercicios de la sesión activa (ya resueltos al iniciarla).
+  List<String> get activeExercises => _activeExercises;
   List<ExerciseSet> get currentSessionExercises => _currentSessionExercises;
   String get selectedExercise => _selectedExercise;
   int get secondsLeft => _secondsLeft;
@@ -45,6 +51,17 @@ class WorkoutProvider extends ChangeNotifier {
     await _storage.init();
     _sessions = _storage.loadSessions();
     _config = _storage.loadConfig();
+
+    print('[WorkoutProvider] _loadData: ${_sessions.length} sesiones, '
+        '${_config.groups.length} grupos: ${_config.groups}');
+
+    // Validación de integridad post-carga
+    if (_config.groups.isEmpty) {
+      print('[WorkoutProvider] _loadData: WARNING - groups vacío, forzando defaultConfig');
+      _config = WorkoutConfig.defaultConfig();
+      await _storage.saveConfig(_config);
+    }
+
     _checkRunningTimer();
     notifyListeners();
   }
@@ -67,20 +84,54 @@ class WorkoutProvider extends ChangeNotifier {
   }
 
   // --- Session Management ---
+  /// Start workout for the given group type. If the group has no exercises
+  /// in exerciseDb, it will attempt to populate them from ExerciseDatabase defaults.
   void startWorkout(String type) {
-    if (!_config.exerciseDb.containsKey(type)) return;
-    
-    _activeWorkoutType = type;
+    print('[WorkoutProvider] startWorkout: "$type" — exerciseDb keys: ${_config.exerciseDb.keys.toList()}');
+
+    // Buscar la clave real en exerciseDb (tolerante a diferencias de formato)
+    String resolvedKey = type;
+    if (!_config.exerciseDb.containsKey(type)) {
+      final normalized = type.trim().toUpperCase();
+      resolvedKey = _config.exerciseDb.keys.firstWhere(
+        (k) => k.trim().toUpperCase() == normalized,
+        orElse: () => type,
+      );
+      print('[WorkoutProvider] startWorkout: clave "$type" resuelta a "$resolvedKey"');
+    }
+
+    // Si el grupo no tiene ejercicios, intentar poblar desde defaults
+    if (!_config.exerciseDb.containsKey(resolvedKey) || _config.exerciseDb[resolvedKey]!.isEmpty) {
+      print('[WorkoutProvider] startWorkout: "$resolvedKey" sin ejercicios, buscando defaults');
+      // Buscar defaults también tolerante a formato
+      final normalizedKey = resolvedKey.trim().toUpperCase();
+      final defaultEntry = ExerciseDatabase.defaultExerciseDb.entries.firstWhere(
+        (e) => e.key.trim().toUpperCase() == normalizedKey,
+        orElse: () => const MapEntry('', <String>[]),
+      );
+      final defaults = defaultEntry.value;
+      if (defaults.isNotEmpty) {
+        final newDb = Map<String, List<String>>.from(_config.exerciseDb);
+        newDb[resolvedKey] = List<String>.from(defaults);
+        _config = _config.copyWith(exerciseDb: newDb);
+        _storage.saveConfig(_config);
+        print('[WorkoutProvider] startWorkout: poblado con ${defaults.length} ejercicios defaults');
+      } else {
+        print('[WorkoutProvider] startWorkout: no hay defaults para "$resolvedKey", iniciando vacío');
+      }
+    }
+
+    // Resolver la lista final de ejercicios y guardarla en estado
+    final exercises = _config.exerciseDb[resolvedKey] ?? [];
+    print('[WorkoutProvider] startWorkout: "$resolvedKey" tiene ${exercises.length} ejercicios: $exercises');
+
+    _activeWorkoutType = resolvedKey;
+    _activeExercises = List<String>.from(exercises);
     _currentSessionExercises = [];
     _isSessionActive = true;
-    
-    final exercises = _config.exerciseDb[type];
-    if (exercises != null && exercises.isNotEmpty) {
-      _selectedExercise = exercises[0];
-    } else {
-      _selectedExercise = '';
-    }
-    
+
+    _selectedExercise = exercises.isNotEmpty ? exercises[0] : '';
+
     notifyListeners();
   }
 
@@ -100,6 +151,7 @@ class WorkoutProvider extends ChangeNotifier {
     _isSessionActive = false;
     _isPaused = false;
     _activeWorkoutType = '';
+    _activeExercises = [];
     _currentSessionExercises = [];
     _showTimer = false;
     notifyListeners();
@@ -110,6 +162,7 @@ class WorkoutProvider extends ChangeNotifier {
     _isSessionActive = false;
     _isPaused = false;
     _activeWorkoutType = '';
+    _activeExercises = [];
     _currentSessionExercises = [];
     _showTimer = false;
     notifyListeners();
@@ -132,12 +185,9 @@ class WorkoutProvider extends ChangeNotifier {
   /// exercises were removed and the user wants to continue.
   void continueWithGroup(String group) {
     _activeWorkoutType = group;
-    final exercises = _config.exerciseDb[group];
-    if (exercises != null && exercises.isNotEmpty) {
-      _selectedExercise = exercises[0];
-    } else {
-      _selectedExercise = '';
-    }
+    final exercises = _config.exerciseDb[group] ?? [];
+    _activeExercises = List<String>.from(exercises);
+    _selectedExercise = exercises.isNotEmpty ? exercises[0] : '';
     _isPaused = false;
     notifyListeners();
   }

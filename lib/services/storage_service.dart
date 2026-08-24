@@ -36,8 +36,25 @@ class StorageService {
 
   WorkoutConfig loadConfig() {
     final String? configJson = _prefs.getString(AppConstants.keyConfig);
-    if (configJson == null) return WorkoutConfig.defaultConfig();
-    return WorkoutConfig.fromJson(jsonDecode(configJson));
+    if (configJson == null) {
+      print('[StorageService] loadConfig: no hay config guardada, usando defaultConfig');
+      return WorkoutConfig.defaultConfig();
+    }
+
+    try {
+      final decoded = jsonDecode(configJson);
+      if (decoded is! Map<String, dynamic>) {
+        print('[StorageService] loadConfig: JSON corrupto, usando defaultConfig');
+        return WorkoutConfig.defaultConfig();
+      }
+      final config = WorkoutConfig.fromJson(decoded);
+      print('[StorageService] loadConfig: cargado ${config.groups.length} grupos, '
+          '${config.exerciseDb.length} rutinas en exerciseDb');
+      return config;
+    } catch (e) {
+      print('[StorageService] loadConfig: error al parsear config: $e, usando defaultConfig');
+      return WorkoutConfig.defaultConfig();
+    }
   }
 
   // --- Backup & Export (Stubs for now) ---

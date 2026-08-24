@@ -44,18 +44,58 @@ class WorkoutConfig {
     'defaultRestSeconds': defaultRestSeconds,
   };
 
-  factory WorkoutConfig.fromJson(Map<String, dynamic> json) => WorkoutConfig(
-    groups: List<String>.from(json['groups'] ?? []),
-    exerciseDb: (json['exercises'] as Map? ?? {}).map(
+  factory WorkoutConfig.fromJson(Map<String, dynamic> json) {
+    final groups = List<String>.from(json['groups'] ?? []);
+
+    // Si groups está vacío, usar defaultConfig como fallback
+    if (groups.isEmpty) {
+      print('[WorkoutConfig] fromJson: groups está vacío, usando defaultConfig');
+      return WorkoutConfig.defaultConfig();
+    }
+
+    final exerciseDb = (json['exercises'] as Map? ?? {}).map(
       (k, v) => MapEntry(k.toString(), List<String>.from(v)),
-    ),
-    archivedExercises: (json['archivedExercises'] as Map? ?? {}).map(
-      (k, v) => MapEntry(k.toString(), List<String>.from(v)),
-    ),
-    plannerMode: json['plannerMode'] ?? 'sequential',
-    weeklyPlan: Map<String, String>.from(json['weeklyPlan'] ?? {}),
-    defaultRestSeconds: json['defaultRestSeconds'] ?? AppConstants.defaultRestSeconds,
-  );
+    );
+
+    // Si exerciseDb está vacío pero groups tiene datos, poblar con ejercicios por defecto
+    if (exerciseDb.isEmpty) {
+      print('[WorkoutConfig] fromJson: exerciseDb está vacío, poblándolo desde ExerciseDatabase');
+      final defaultDb = Map<String, List<String>>.from(
+        ExerciseDatabase.defaultExerciseDb.map((k, v) => MapEntry(k, List<String>.from(v))),
+      );
+      return WorkoutConfig(
+        groups: groups,
+        exerciseDb: defaultDb,
+        archivedExercises: {},
+        plannerMode: json['plannerMode'] ?? 'sequential',
+        weeklyPlan: Map<String, String>.from(json['weeklyPlan'] ?? {}),
+        defaultRestSeconds: json['defaultRestSeconds'] ?? AppConstants.defaultRestSeconds,
+      );
+    }
+
+    // Verificar que cada grupo tenga ejercicios; si un grupo no tiene, asignar los defaults
+    final resolvedDb = Map<String, List<String>>.from(exerciseDb);
+    for (final group in groups) {
+      if (!resolvedDb.containsKey(group) || resolvedDb[group]!.isEmpty) {
+        final defaults = ExerciseDatabase.defaultExerciseDb[group];
+        if (defaults != null) {
+          print('[WorkoutConfig] fromJson: grupo "$group" sin ejercicios, usando defaults');
+          resolvedDb[group] = List<String>.from(defaults);
+        }
+      }
+    }
+
+    return WorkoutConfig(
+      groups: groups,
+      exerciseDb: resolvedDb,
+      archivedExercises: (json['archivedExercises'] as Map? ?? {}).map(
+        (k, v) => MapEntry(k.toString(), List<String>.from(v)),
+      ),
+      plannerMode: json['plannerMode'] ?? 'sequential',
+      weeklyPlan: Map<String, String>.from(json['weeklyPlan'] ?? {}),
+      defaultRestSeconds: json['defaultRestSeconds'] ?? AppConstants.defaultRestSeconds,
+    );
+  }
 
   WorkoutConfig copyWith({
     List<String>? groups,
