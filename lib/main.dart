@@ -40,7 +40,7 @@ class TrainerProApp extends StatelessWidget {
           builder: (context, isPip, child) {
             final locale = Locale(settings.languageCode);
             return MaterialApp(
-              title: 'TrainerPRO',
+              title: 'RITMO',
               debugShowCheckedModeBanner: false,
               theme: theme.themeData,
               locale: locale,

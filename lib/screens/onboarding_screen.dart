@@ -123,14 +123,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(),
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: theme.accentColor.withOpacity(0.12),
-              shape: BoxShape.circle,
-              border: Border.all(color: theme.accentColor.withOpacity(0.3)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              'assets/images/app_logo.png',
+              width: 100,
+              height: 100,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: theme.accentColor.withOpacity(0.3)),
+                ),
+                child: Icon(LucideIcons.dumbbell, size: 56, color: theme.accentColor),
+              ),
             ),
-            child: Icon(LucideIcons.globe, size: 56, color: theme.accentColor),
           ),
           const SizedBox(height: 28),
           Text(

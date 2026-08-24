@@ -5,7 +5,7 @@ enum AppLanguage { spanish, english, arabic }
 class AppTranslations {
   static Map<String, Map<String, String>> translations = {
     'es': {
-      'app_name': 'TRAINER PRO',
+      'app_name': 'RITMO',
       'today': 'HOY',
       'history': 'HISTORIAL',
       'progress': 'PROGRESO',
@@ -29,7 +29,7 @@ class AppTranslations {
       'reps': 'REPS',
       'save_set': 'GUARDAR SERIE',
       'no_activity': 'SIN ACTIVIDAD',
-      'onboarding_title': 'TRAINER PRO',
+      'onboarding_title': 'RITMO',
       'onboarding_subtitle': 'Tu compañero definitivo para el gimnasio. Profesional, modular y potente.',
       'get_started': 'COMENZAR AHORA',
       'language': 'IDIOMA',
@@ -85,7 +85,7 @@ class AppTranslations {
       'stop': 'PARAR',
     },
     'en': {
-      'app_name': 'TRAINER PRO',
+      'app_name': 'RITMO',
       'today': 'TODAY',
       'history': 'HISTORY',
       'progress': 'PROGRESS',
@@ -109,7 +109,7 @@ class AppTranslations {
       'reps': 'REPS',
       'save_set': 'SAVE SET',
       'no_activity': 'NO ACTIVITY',
-      'onboarding_title': 'TRAINER PRO',
+      'onboarding_title': 'RITMO',
       'onboarding_subtitle': 'Your ultimate gym companion. Professional, modular, and powerful.',
       'get_started': 'GET STARTED',
       'language': 'LANGUAGE',
@@ -165,7 +165,7 @@ class AppTranslations {
       'stop': 'STOP',
     },
     'ar': {
-      'app_name': 'ترينر برو',
+      'app_name': 'RITMO',
       'today': 'اليوم',
       'history': 'السجل',
       'progress': 'التقدم',
@@ -189,7 +189,7 @@ class AppTranslations {
       'reps': 'التكرارات',
       'save_set': 'حفظ الجولة',
       'no_activity': 'لا يوجد نشاط',
-      'onboarding_title': 'ترينر برو',
+      'onboarding_title': 'RITMO',
       'onboarding_subtitle': 'رفيقك النهائي في الجيم. احترافي، مرن، وقوي.',
       'get_started': 'ابدأ الآن',
       'language': 'اللغة',

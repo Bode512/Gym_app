@@ -19,7 +19,7 @@ class AppConstants {
   static const Curve defaultCurve = Curves.easeInOut;
 
   // Strings reutilizables
-  static const String appName = 'TRAINER PRO';
+  static const String appName = 'RITMO';
   static const String version = '2.0.0';
   
   // Storage keys

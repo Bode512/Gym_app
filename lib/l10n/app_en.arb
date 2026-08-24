@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "app_name": "TRAINER PRO",
+  "app_name": "RITMO",
   "today": "TODAY",
   "history": "HISTORY",
   "progress": "PROGRESS",
@@ -26,7 +26,7 @@
   "reps": "REPS",
   "save_set": "SAVE SET",
   "no_activity": "NO ACTIVITY",
-  "onboarding_title": "TRAINER PRO",
+  "onboarding_title": "RITMO",
   "onboarding_subtitle": "Your ultimate high-performance training companion.",
   "get_started": "GET STARTED NOW",
   "language": "LANGUAGE",

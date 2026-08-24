@@ -54,4 +54,6 @@ flutter:
   uses-material-design: true
   generate: true
 
-  
+  assets:
+    - assets/images/app_logo.png
+    - assets/images/app_logo_transparent.png

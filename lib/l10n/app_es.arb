@@ -1,6 +1,6 @@
 {
   "@@locale": "es",
-  "app_name": "TRAINER PRO",
+  "app_name": "RITMO",
   "today": "HOY",
   "history": "HISTORIAL",
   "progress": "PROGRESO",
@@ -26,7 +26,7 @@
   "reps": "REPS",
   "save_set": "GUARDAR SERIE",
   "no_activity": "SIN ACTIVIDAD",
-  "onboarding_title": "TRAINER PRO",
+  "onboarding_title": "RITMO",
   "onboarding_subtitle": "Tu compañero definitivo de entrenamiento de alto rendimiento.",
   "get_started": "COMENZAR AHORA",
   "language": "IDIOMA",
