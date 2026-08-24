@@ -131,9 +131,11 @@ class _WorkoutTabState extends State<WorkoutTab> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.white38, size: 20),
+            // More visible "Volver" button so users can always return to inicio
+            TextButton.icon(
               onPressed: () => _showCancelDialog(context, workout, settings),
+              icon: const Icon(Icons.close, color: Colors.white, size: 18),
+              label: Text(settings.translate('back') ?? 'Volver', style: const TextStyle(color: Colors.white)),
             ),
             Text(settings.translate('training'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
             Row(children: [
@@ -170,13 +172,18 @@ class _WorkoutTabState extends State<WorkoutTab> {
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     ElevatedButton(
                       onPressed: () => _showContinueDialog(context, workout, settings),
-                      child: Text('Continuar entrenamiento'),
+                      child: Text(settings.translate('continue_training') ?? 'Continuar entrenamiento'),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () => workout.cancelWorkout(),
+                      child: Text(settings.translate('back_home') ?? 'Volver a inicio'),
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                       onPressed: () => workout.finishWorkout(),
-                      child: Text('Finalizar entrenamiento'),
+                      child: Text(settings.translate('finish_workout') ?? 'Finalizar entrenamiento'),
                     ),
                   ]),
                 ]);
