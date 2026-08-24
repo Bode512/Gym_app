@@ -74,13 +74,18 @@ class WorkoutConfig {
     }
 
     // Verificar que cada grupo tenga ejercicios; si un grupo no tiene, asignar los defaults
+    // usando búsqueda tolerante a diferencias de formato (uppercase/trim).
     final resolvedDb = Map<String, List<String>>.from(exerciseDb);
     for (final group in groups) {
       if (!resolvedDb.containsKey(group) || resolvedDb[group]!.isEmpty) {
-        final defaults = ExerciseDatabase.defaultExerciseDb[group];
-        if (defaults != null) {
-          print('[WorkoutConfig] fromJson: grupo "$group" sin ejercicios, usando defaults');
-          resolvedDb[group] = List<String>.from(defaults);
+        final normalizedGroup = group.trim().toUpperCase();
+        final defaultEntry = ExerciseDatabase.defaultExerciseDb.entries.firstWhere(
+          (e) => e.key.trim().toUpperCase() == normalizedGroup,
+          orElse: () => const MapEntry('', <String>[]),
+        );
+        if (defaultEntry.value.isNotEmpty) {
+          print('[WorkoutConfig] fromJson: grupo "$group" sin ejercicios, usando defaults tolerantes');
+          resolvedDb[group] = List<String>.from(defaultEntry.value);
         }
       }
     }

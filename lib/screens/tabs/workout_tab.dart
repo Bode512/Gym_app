@@ -168,7 +168,7 @@ class _WorkoutTabState extends State<WorkoutTab> {
     final pb = workout.getPB(workout.selectedExercise);
     final last = workout.getLastTime(workout.selectedExercise);
 
-    return Column(children: [
+    return SizedBox.expand(child: Column(children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
         child: Row(
@@ -281,7 +281,7 @@ class _WorkoutTabState extends State<WorkoutTab> {
           ],
         ),
       ),
-    ]);
+    ]));
   }
 
   void _showCancelDialog(BuildContext context, WorkoutProvider workout, SettingsProvider settings) {
