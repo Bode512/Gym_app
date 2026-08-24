@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/exercise_set.dart';
 import '../models/training_session.dart';
@@ -26,6 +27,9 @@ class WorkoutProvider extends ChangeNotifier {
   String _selectedExercise = '';
   List<String> _activeExercises = [];
   
+  // -- Interrupted Session Detection --
+  bool _hasInterruptedSession = false;
+
   // -- Timer State --
   Timer? _restTimer;
   int _secondsLeft = 0;
@@ -43,6 +47,7 @@ class WorkoutProvider extends ChangeNotifier {
   String get selectedExercise => _selectedExercise;
   int get secondsLeft => _secondsLeft;
   bool get showTimer => _showTimer;
+  bool get hasInterruptedSession => _hasInterruptedSession;
 
   WorkoutProvider() {
     _loadData();
@@ -56,16 +61,99 @@ class WorkoutProvider extends ChangeNotifier {
     _sessions = _storage.loadSessions();
     _config = _storage.loadConfig();
 
-    print('[WorkoutProvider] _loadData: ${_sessions.length} sesiones, '
-        '${_config.groups.length} grupos: ${_config.groups}');
-
     if (_config.groups.isEmpty) {
-      print('[WorkoutProvider] _loadData: WARNING - groups vacío, forzando defaultConfig');
       _config = WorkoutConfig.defaultConfig();
       await _storage.saveConfig(_config);
     }
 
     _checkRunningTimer();
+    _checkInterruptedSession();
+    notifyListeners();
+  }
+
+  void _checkInterruptedSession() {
+    final prefs = _storage.prefs;
+    final type = prefs.getString('interrupted_workout_type');
+    if (type != null && type.isNotEmpty) {
+      _hasInterruptedSession = true;
+    }
+  }
+
+  void _saveActiveSessionState() {
+    if (!_isSessionActive) return;
+    final prefs = _storage.prefs;
+    prefs.setString('interrupted_workout_type', _activeWorkoutType);
+    prefs.setBool('interrupted_workout_paused', _isPaused);
+    final exercisesJson = jsonEncode(_currentSessionExercises.map((e) => e.toJson()).toList());
+    prefs.setString('interrupted_workout_exercises', exercisesJson);
+  }
+
+  void _clearActiveSessionState() {
+    final prefs = _storage.prefs;
+    prefs.remove('interrupted_workout_type');
+    prefs.remove('interrupted_workout_paused');
+    prefs.remove('interrupted_workout_exercises');
+    _hasInterruptedSession = false;
+  }
+
+  void restoreInterruptedSession() {
+    final prefs = _storage.prefs;
+    final type = prefs.getString('interrupted_workout_type') ?? '';
+    final isPaused = prefs.getBool('interrupted_workout_paused') ?? false;
+    final jsonStr = prefs.getString('interrupted_workout_exercises') ?? '[]';
+
+    if (type.isNotEmpty) {
+      _activeWorkoutType = type;
+      _isPaused = isPaused;
+      
+      final exercisesList = _config.exerciseDb[type] ?? [];
+      _activeExercises = List<String>.from(exercisesList);
+      _selectedExercise = exercisesList.isNotEmpty ? exercisesList[0] : '';
+
+      try {
+        final List<dynamic> decoded = jsonDecode(jsonStr);
+        _currentSessionExercises = decoded
+            .map((e) => ExerciseSet.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } catch (e) {
+        _currentSessionExercises = [];
+      }
+
+      _isSessionActive = true;
+      _hasInterruptedSession = false;
+      notifyListeners();
+    }
+  }
+
+  void discardInterruptedSession({bool finishAndSave = false}) {
+    final prefs = _storage.prefs;
+    final type = prefs.getString('interrupted_workout_type') ?? '';
+    final jsonStr = prefs.getString('interrupted_workout_exercises') ?? '[]';
+
+    if (finishAndSave && type.isNotEmpty) {
+      try {
+        final List<dynamic> decoded = jsonDecode(jsonStr);
+        final exercises = decoded
+            .map((e) => ExerciseSet.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        if (exercises.isNotEmpty) {
+          final session = TrainingSession(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            type: type,
+            exercises: exercises,
+            date: exercises.last.date,
+            endDate: DateTime.now(),
+          );
+          _sessions.insert(0, session);
+          _storage.saveSessions(_sessions);
+        }
+      } catch (e) {
+        debugPrint('Error saving interrupted session: $e');
+      }
+    }
+
+    _clearActiveSessionState();
     notifyListeners();
   }
 
@@ -120,7 +208,9 @@ class WorkoutProvider extends ChangeNotifier {
     _currentSessionExercises = [];
     _isSessionActive = true;
     _selectedExercise = exercises.isNotEmpty ? exercises[0] : '';
+    _hasInterruptedSession = false;
 
+    _saveActiveSessionState();
     notifyListeners();
   }
 
@@ -137,6 +227,7 @@ class WorkoutProvider extends ChangeNotifier {
       _sessions.insert(0, session);
       _storage.saveSessions(_sessions);
     }
+    _clearActiveSessionState();
     _isSessionActive = false;
     _isPaused = false;
     _activeWorkoutType = '';
@@ -148,6 +239,7 @@ class WorkoutProvider extends ChangeNotifier {
 
   void cancelWorkout() {
     stopTimer();
+    _clearActiveSessionState();
     _isSessionActive = false;
     _isPaused = false;
     _activeWorkoutType = '';
@@ -160,12 +252,14 @@ class WorkoutProvider extends ChangeNotifier {
   void pauseWorkout() {
     if (!_isSessionActive) return;
     _isPaused = true;
+    _saveActiveSessionState();
     notifyListeners();
   }
 
   void resumeWorkout() {
     if (!_isSessionActive) return;
     _isPaused = false;
+    _saveActiveSessionState();
     notifyListeners();
   }
 
@@ -175,6 +269,7 @@ class WorkoutProvider extends ChangeNotifier {
     _activeExercises = List<String>.from(exercises);
     _selectedExercise = exercises.isNotEmpty ? exercises[0] : '';
     _isPaused = false;
+    _saveActiveSessionState();
     notifyListeners();
   }
 
@@ -205,6 +300,7 @@ class WorkoutProvider extends ChangeNotifier {
     }
 
     startRestTimer();
+    _saveActiveSessionState();
     notifyListeners();
   }
 
@@ -277,3 +373,4 @@ class WorkoutProvider extends ChangeNotifier {
   ExerciseSet? getLastTime(String exerciseName) => WorkoutService.getLastTime(_sessions, exerciseName);
   Map<String, String> getSuggestion() => WorkoutService.getSuggestion(_sessions, _config);
 }
+

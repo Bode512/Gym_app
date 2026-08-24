@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../providers/settings_provider.dart';
 import '../core/theme/theme_manager.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/workout_provider.dart';
 import '../widgets/common/timer_widget.dart';
+import '../widgets/workout/interrupted_session_dialog.dart';
 import 'tabs/workout_tab.dart';
 import 'tabs/history_tab.dart';
 import 'tabs/stats_tab.dart';
@@ -30,10 +32,19 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      InterruptedSessionDialog.showIfNeeded(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeManager>(context);
     final workout = Provider.of<WorkoutProvider>(context);
     final settings = Provider.of<SettingsProvider>(context);
+    final l10n = AppLocalizations.of(context);
 
     // Determinar icono del tema para el header
     IconData themeIcon;
@@ -50,7 +61,7 @@ class _MainScreenState extends State<MainScreen> {
           Column(
             children: [
               // Header dinámico
-              _buildHeader(theme, workout, themeIcon, settings),
+              _buildHeader(theme, workout, themeIcon, settings, l10n),
               // Cuerpo de la pestaña activa
               Expanded(
                 child: IndexedStack(
@@ -59,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
               // Bottom Navigation
-              if (!workout.isSessionActive) _buildBottomNav(theme, settings),
+              if (!workout.isSessionActive) _buildBottomNav(theme, settings, l10n),
             ],
           ),
           const TimerWidget(),
@@ -68,7 +79,8 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildHeader(ThemeManager theme, WorkoutProvider workout, IconData themeIcon, SettingsProvider settings) {
+  Widget _buildHeader(
+      ThemeManager theme, WorkoutProvider workout, IconData themeIcon, SettingsProvider settings, AppLocalizations? l10n) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 52, 20, 16),
       decoration: BoxDecoration(
@@ -84,13 +96,17 @@ class _MainScreenState extends State<MainScreen> {
             tooltip: 'Cambiar Tema',
           ),
           Builder(builder: (context) {
-            final title = settings.translate('onboarding_title');
+            final title = l10n?.app_name ?? 'TRAINER PRO';
             final parts = title.split(' ');
             final firstPart = parts.isNotEmpty ? parts[0] : title;
             final restPart = parts.length > 1 ? parts.sublist(1).join(' ') : '';
             return RichText(
               text: TextSpan(
-                style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic),
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
                 children: [
                   TextSpan(text: firstPart, style: const TextStyle(color: AppColors.textPrimary)),
                   if (restPart.isNotEmpty)
@@ -106,7 +122,7 @@ class _MainScreenState extends State<MainScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               ),
-              tooltip: settings.translate('settings'),
+              tooltip: l10n?.settings ?? 'Ajustes',
             )
           else if (workout.isSessionActive)
             Container(
@@ -118,7 +134,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               child: Text(
                 workout.activeWorkoutType,
-                style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: theme.accentColor),
+                style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: theme.accentColor),
               ),
             )
           else
@@ -128,7 +144,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildBottomNav(ThemeManager theme, SettingsProvider settings) {
+  Widget _buildBottomNav(ThemeManager theme, SettingsProvider settings, AppLocalizations? l10n) {
     return Container(
       padding: const EdgeInsets.only(bottom: 24, top: 12),
       decoration: BoxDecoration(
@@ -138,9 +154,9 @@ class _MainScreenState extends State<MainScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _navItem(0, LucideIcons.dumbbell, settings.translate('today'), theme),
-          _navItem(1, LucideIcons.calendar, settings.translate('history'), theme),
-          _navItem(2, LucideIcons.trending_up, settings.translate('progress'), theme),
+          _navItem(0, LucideIcons.dumbbell, l10n?.today ?? 'HOY', theme),
+          _navItem(1, LucideIcons.calendar, l10n?.history ?? 'HISTORIAL', theme),
+          _navItem(2, LucideIcons.trending_up, l10n?.progress ?? 'PROGRESO', theme),
         ],
       ),
     );
@@ -155,10 +171,11 @@ class _MainScreenState extends State<MainScreen> {
         const SizedBox(height: 4),
         Text(
           l,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 10,
             color: _activeTab == i ? theme.accentColor : AppColors.textMuted,
             fontWeight: _activeTab == i ? FontWeight.bold : FontWeight.w600,
+            letterSpacing: 0.5,
           ),
         ),
       ],

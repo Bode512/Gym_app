@@ -17,7 +17,7 @@ class RecordBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.9),
+        color: theme.accentColor.withOpacity(0.9),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
