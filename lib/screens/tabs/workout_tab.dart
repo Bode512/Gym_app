@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../core/constants/exercise_database.dart';
 import '../../providers/workout_provider.dart';
 import '../../widgets/workout/exercise_chip.dart';
 import '../../widgets/workout/set_card.dart';
@@ -48,7 +49,7 @@ class _WorkoutTabState extends State<WorkoutTab> {
       padding: const EdgeInsets.all(24),
       children: [
         GestureDetector(
-          onTap: () => suggestion['type'] == 'DESCANSO' ? null : workout.startWorkout(suggestion['type']!),
+          onTap: () => suggestion['type'] == 'DESCANSO' ? null : _attemptStartWorkout(context, workout, settings, suggestion['type']!),
           child: Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
@@ -74,14 +75,50 @@ class _WorkoutTabState extends State<WorkoutTab> {
             borderRadius: BorderRadius.circular(20), 
             border: Border.all(color: Colors.white.withOpacity(0.08))
           ),
-          child: ListTile(
+            child: ListTile(
             title: Text(group, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
             trailing: Icon(Icons.chevron_right, size: 18, color: Theme.of(context).primaryColor),
-            onTap: () => workout.startWorkout(group),
+            onTap: () => _attemptStartWorkout(context, workout, settings, group),
           ),
         )).toList(),
       ],
     );
+  }
+
+  void _attemptStartWorkout(BuildContext context, WorkoutProvider workout, SettingsProvider settings, String group) {
+    final exercises = workout.config.exerciseDb[group] ?? [];
+    if (exercises.isNotEmpty) {
+      workout.startWorkout(group);
+      return;
+    }
+
+    // No exercises: ask user what to do
+    showDialog(context: context, builder: (c) => AlertDialog(
+      title: Text('Iniciar $group'),
+      content: const Text('Esta rutina no tiene ejercicios. ¿Qué quieres hacer?'),
+      actions: [
+        TextButton(onPressed: () {
+          // Populate with defaults if available
+          final defaults = ExerciseDatabase.defaultExerciseDb[group];
+          if (defaults != null) {
+            final newDb = Map<String, List<String>>.from(workout.config.exerciseDb);
+            newDb[group] = List<String>.from(defaults);
+            workout.updateConfig(workout.config.copyWith(exerciseDb: newDb));
+            workout.startWorkout(group);
+          } else {
+            // If no defaults, just start empty
+            workout.startWorkout(group);
+          }
+          Navigator.pop(c);
+        }, child: const Text('Usar ejercicios por defecto')),
+        TextButton(onPressed: () {
+          // Start empty anyway
+          workout.startWorkout(group);
+          Navigator.pop(c);
+        }, child: const Text('Empezar vacío')),
+        TextButton(onPressed: () => Navigator.pop(c), child: const Text('Volver')),
+      ],
+    ));
   }
 
   Widget _buildActiveWorkout(WorkoutProvider workout, SettingsProvider settings) {
