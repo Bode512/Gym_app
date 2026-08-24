@@ -99,12 +99,22 @@ class _WorkoutTabState extends State<WorkoutTab> {
               onPressed: () => _showCancelDialog(context, workout, settings),
             ),
             Text(settings.translate('training'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
-            PrimaryButton(
-              label: settings.translate('finish_workout'),
-              onPressed: () => workout.finishWorkout(),
-              color: Colors.redAccent,
-              icon: Icons.check,
-            ),
+            Row(children: [
+              // Pause / Resume button
+              PrimaryButton(
+                label: workout.isPaused ? settings.translate('resume') : settings.translate('pause'),
+                onPressed: () => workout.isPaused ? workout.resumeWorkout() : workout.pauseWorkout(),
+                color: workout.isPaused ? Colors.green : Colors.orangeAccent,
+                icon: workout.isPaused ? Icons.play_arrow : Icons.pause,
+              ),
+              const SizedBox(width: 8),
+              PrimaryButton(
+                label: settings.translate('finish_workout'),
+                onPressed: () => workout.finishWorkout(),
+                color: Colors.redAccent,
+                icon: Icons.check,
+              ),
+            ]),
           ],
         ),
       ),
@@ -112,15 +122,38 @@ class _WorkoutTabState extends State<WorkoutTab> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: (workout.config.exerciseDb[workout.activeWorkoutType] ?? []).map((ex) => ExerciseChip(
-                label: ex,
-                isSelected: workout.selectedExercise == ex,
-                onTap: () => workout.setSelectedExercise(ex),
-              )).toList(),
-            ),
+            Builder(builder: (_) {
+              final exercises = workout.config.exerciseDb[workout.activeWorkoutType] ?? [];
+              if (exercises.isEmpty) {
+                // Show options to continue with another group or finish
+                return Column(children: [
+                  const SizedBox(height: 20),
+                  Text('No hay ejercicios para esta rutina.', style: const TextStyle(color: Colors.white38)),
+                  const SizedBox(height: 12),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    ElevatedButton(
+                      onPressed: () => _showContinueDialog(context, workout, settings),
+                      child: Text('Continuar entrenamiento'),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                      onPressed: () => workout.finishWorkout(),
+                      child: Text('Finalizar entrenamiento'),
+                    ),
+                  ]),
+                ]);
+              }
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: exercises.map((ex) => ExerciseChip(
+                  label: ex,
+                  isSelected: workout.selectedExercise == ex,
+                  onTap: () => workout.setSelectedExercise(ex),
+                )).toList(),
+              );
+            }),
             const SizedBox(height: 25),
             if (pb != null) ExerciseHistoryCard(title: "RÉCORD PERSONAL", exerciseSet: pb, isPB: true, onCopy: () => _weightCtrl.text = pb.weight.toString()),
             if (last != null && pb?.id != last.id) ...[
@@ -174,5 +207,27 @@ class _WorkoutTabState extends State<WorkoutTab> {
         }, child: Text(settings.translate('confirm'), style: const TextStyle(color: Colors.redAccent))),
       ],
     ));
+  }
+
+  void _showContinueDialog(BuildContext context, WorkoutProvider workout, SettingsProvider settings) {
+    showDialog(context: context, builder: (c) {
+      return AlertDialog(
+        title: Text('Continuar entrenamiento'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: workout.config.groups.map((g) => ListTile(
+              title: Text(g),
+              onTap: () {
+                workout.continueWithGroup(g);
+                Navigator.pop(c);
+              },
+            )).toList(),
+          ),
+        ),
+        actions: [TextButton(onPressed: () => Navigator.pop(c), child: Text(settings.translate('cancel')))],
+      );
+    });
   }
 }

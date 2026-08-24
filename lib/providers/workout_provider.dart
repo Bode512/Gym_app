@@ -15,6 +15,7 @@ class WorkoutProvider extends ChangeNotifier {
   
   // -- Active Session State --
   bool _isSessionActive = false;
+  bool _isPaused = false;
   String _activeWorkoutType = '';
   List<ExerciseSet> _currentSessionExercises = [];
   String _selectedExercise = '';
@@ -29,6 +30,7 @@ class WorkoutProvider extends ChangeNotifier {
   List<TrainingSession> get sessions => _sessions;
   WorkoutConfig get config => _config;
   bool get isSessionActive => _isSessionActive;
+  bool get isPaused => _isPaused;
   String get activeWorkoutType => _activeWorkoutType;
   List<ExerciseSet> get currentSessionExercises => _currentSessionExercises;
   String get selectedExercise => _selectedExercise;
@@ -96,6 +98,7 @@ class WorkoutProvider extends ChangeNotifier {
       _storage.saveSessions(_sessions);
     }
     _isSessionActive = false;
+    _isPaused = false;
     _activeWorkoutType = '';
     _currentSessionExercises = [];
     _showTimer = false;
@@ -105,9 +108,37 @@ class WorkoutProvider extends ChangeNotifier {
   void cancelWorkout() {
     _restTimer?.cancel();
     _isSessionActive = false;
+    _isPaused = false;
     _activeWorkoutType = '';
     _currentSessionExercises = [];
     _showTimer = false;
+    notifyListeners();
+  }
+
+  void pauseWorkout() {
+    if (!_isSessionActive) return;
+    _isPaused = true;
+    notifyListeners();
+  }
+
+  void resumeWorkout() {
+    if (!_isSessionActive) return;
+    _isPaused = false;
+    notifyListeners();
+  }
+
+  /// Continue the current active session using a different group without
+  /// clearing the current session exercises. Useful when the previous group's
+  /// exercises were removed and the user wants to continue.
+  void continueWithGroup(String group) {
+    _activeWorkoutType = group;
+    final exercises = _config.exerciseDb[group];
+    if (exercises != null && exercises.isNotEmpty) {
+      _selectedExercise = exercises[0];
+    } else {
+      _selectedExercise = '';
+    }
+    _isPaused = false;
     notifyListeners();
   }
 

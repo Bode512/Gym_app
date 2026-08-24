@@ -11,6 +11,7 @@ import '../../widgets/settings/exercise_manager.dart';
 
 // Add this:
 import 'package:flutter_lucide/flutter_lucide.dart';
+import '../../core/constants/exercise_database.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -224,23 +225,54 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showRestoreRoutineDialog(BuildContext context, WorkoutProvider workout, SettingsProvider settings) {
-    showDialog(context: context, builder: (c) => AlertDialog(
-      title: Text(settings.translate('restore_routine')),
-      content: Text(settings.translate('restore_routine_confirm') ?? '¿Restaurar la rutina por defecto? Esto no eliminará tus ejercicios guardados.'),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(c), child: Text(settings.translate('cancel'))),
-        TextButton(onPressed: () {
-          final defaultCfg = WorkoutConfig.defaultConfig();
-          // Keep user's exercise DB and archived exercises, but reset groups and planner settings
-          final newCfg = defaultCfg.copyWith(
-            exerciseDb: workout.config.exerciseDb,
-            archivedExercises: workout.config.archivedExercises,
-          );
-          workout.updateConfig(newCfg);
-          Navigator.pop(c);
-        }, child: Text(settings.translate('confirm'))),
-      ],
-    ));
+    // Let user choose a routine structure (like first-time setup), then apply it
+    showDialog(context: context, builder: (c) {
+      return AlertDialog(
+        title: Text(settings.translate('restore_routine')),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: ExerciseDatabase.routineStructures.keys.map((name) => ListTile(
+              title: Text(name),
+              onTap: () {
+                final prevConfig = workout.config;
+                final chosen = ExerciseDatabase.routineStructures[name] ?? [];
+                // Build new groups and exerciseDb entries for the chosen structure
+                final newGroups = List<String>.from(chosen);
+                final newDb = Map<String, List<String>>.from(workout.config.exerciseDb);
+                for (final g in chosen) {
+                  if (!newDb.containsKey(g)) {
+                    newDb[g] = ExerciseDatabase.defaultExerciseDb[g] != null
+                        ? List<String>.from(ExerciseDatabase.defaultExerciseDb[g]!)
+                        : [];
+                  }
+                }
+
+                final defaultCfg = WorkoutConfig.defaultConfig();
+                final merged = defaultCfg.copyWith(
+                  groups: newGroups,
+                  exerciseDb: newDb,
+                  archivedExercises: workout.config.archivedExercises,
+                );
+                workout.updateConfig(merged);
+                Navigator.pop(c);
+
+                // Show undo snackbar
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Rutina aplicada: $name'),
+                  action: SnackBarAction(label: 'Deshacer', onPressed: () {
+                    workout.updateConfig(prevConfig);
+                  }),
+                  duration: const Duration(seconds: 6),
+                ));
+              },
+            )).toList(),
+          ),
+        ),
+        actions: [TextButton(onPressed: () => Navigator.pop(c), child: Text(settings.translate('cancel')))],
+      );
+    });
   }
 }
 
