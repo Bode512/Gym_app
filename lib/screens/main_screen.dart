@@ -80,15 +80,22 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(themeIcon, color: theme.accentColor, size: 24),
             onPressed: () => theme.cycleTheme(),
           ),
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic),
-              children: [
-                TextSpan(text: settings.translate('onboarding_title').split(' ')[0], style: const TextStyle(color: Colors.white)),
-                TextSpan(text: ' ${settings.translate('onboarding_title').split(' ').sublist(1).join(' ')}', style: TextStyle(color: theme.accentColor)),
-              ],
-            ),
-          ),
+          Builder(builder: (context) {
+            final title = settings.translate('onboarding_title');
+            final parts = title.split(' ');
+            final firstPart = parts.isNotEmpty ? parts[0] : title;
+            final restPart = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+            return RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, fontStyle: FontStyle.italic),
+                children: [
+                  TextSpan(text: firstPart, style: const TextStyle(color: Colors.white)),
+                  if (restPart.isNotEmpty)
+                    TextSpan(text: ' $restPart', style: TextStyle(color: theme.accentColor)),
+                ],
+              ),
+            );
+          }),
           if (_activeTab == 0 && !workout.isSessionActive)
             IconButton(
               icon: Icon(LucideIcons.settings, size: 20, color: Colors.white24),

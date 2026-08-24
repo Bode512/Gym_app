@@ -9,6 +9,8 @@ class PrimaryButton extends StatelessWidget {
   final bool isLoading;
   final IconData? icon;
 
+  final bool fullWidth;
+
   const PrimaryButton({
     super.key,
     required this.label,
@@ -16,6 +18,7 @@ class PrimaryButton extends StatelessWidget {
     this.color,
     this.isLoading = false,
     this.icon,
+    this.fullWidth = true,
   });
 
   @override
@@ -25,7 +28,8 @@ class PrimaryButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color ?? theme.accentColor,
-        minimumSize: const Size(double.infinity, 55),
+        minimumSize: Size(fullWidth ? double.infinity : 0, 50),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 0,
       ),

@@ -118,10 +118,14 @@ class _WorkoutTabState extends State<WorkoutTab> {
             borderRadius: BorderRadius.circular(20), 
             border: Border.all(color: Colors.white.withOpacity(0.08))
           ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
             child: ListTile(
-            title: Text(group, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-            trailing: Icon(Icons.chevron_right, size: 18, color: Theme.of(context).primaryColor),
-            onTap: () => _attemptStartWorkout(context, workout, settings, group),
+              title: Text(group, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+              trailing: Icon(Icons.chevron_right, size: 18, color: Theme.of(context).primaryColor),
+              onTap: () => _attemptStartWorkout(context, workout, settings, group),
+            ),
           ),
         )).toList(),
       ],
@@ -170,33 +174,45 @@ class _WorkoutTabState extends State<WorkoutTab> {
 
     return SizedBox.expand(child: Column(children: [
       Padding(
-        padding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+        child: Column(
           children: [
-            // More visible "Volver" button so users can always return to inicio
-            TextButton.icon(
-              onPressed: () => _showCancelDialog(context, workout, settings),
-              icon: const Icon(Icons.close, color: Colors.white, size: 18),
-              label: Text(settings.translate('back') ?? 'Volver', style: const TextStyle(color: Colors.white)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  onPressed: () => _showCancelDialog(context, workout, settings),
+                  icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                  label: Text(settings.translate('back') ?? 'Volver', style: const TextStyle(color: Colors.white)),
+                ),
+                Text(settings.translate('training'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
+                const SizedBox(width: 48),
+              ],
             ),
-            Text(settings.translate('training'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
-            Row(children: [
-              // Pause / Resume button
-              PrimaryButton(
-                label: workout.isPaused ? settings.translate('resume') : settings.translate('pause'),
-                onPressed: () => workout.isPaused ? workout.resumeWorkout() : workout.pauseWorkout(),
-                color: workout.isPaused ? Colors.green : Colors.orangeAccent,
-                icon: workout.isPaused ? Icons.play_arrow : Icons.pause,
-              ),
-              const SizedBox(width: 8),
-              PrimaryButton(
-                label: settings.translate('finish_workout'),
-                onPressed: () => workout.finishWorkout(),
-                color: Colors.redAccent,
-                icon: Icons.check,
-              ),
-            ]),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: workout.isPaused ? settings.translate('resume') : settings.translate('pause'),
+                    onPressed: () => workout.isPaused ? workout.resumeWorkout() : workout.pauseWorkout(),
+                    color: workout.isPaused ? Colors.green : Colors.orangeAccent,
+                    icon: workout.isPaused ? Icons.play_arrow : Icons.pause,
+                    fullWidth: false,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: PrimaryButton(
+                    label: settings.translate('finish_workout'),
+                    onPressed: () => workout.finishWorkout(),
+                    color: Colors.redAccent,
+                    icon: Icons.check,
+                    fullWidth: false,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -214,17 +230,15 @@ class _WorkoutTabState extends State<WorkoutTab> {
                   const SizedBox(height: 20),
                   Text('No hay ejercicios para esta rutina.', style: const TextStyle(color: Colors.white38)),
                   const SizedBox(height: 12),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
                     ElevatedButton(
                       onPressed: () => _showContinueDialog(context, workout, settings),
                       child: Text(settings.translate('continue_training') ?? 'Continuar entrenamiento'),
                     ),
-                    const SizedBox(width: 12),
                     ElevatedButton(
                       onPressed: () => workout.cancelWorkout(),
                       child: Text(settings.translate('back_home') ?? 'Volver a inicio'),
                     ),
-                    const SizedBox(width: 12),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                       onPressed: () => workout.finishWorkout(),

@@ -1,30 +1,77 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:musta_pro/main.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:trainerpro/main.dart';
+import 'package:trainerpro/core/theme/theme_manager.dart';
+import 'package:trainerpro/providers/workout_provider.dart';
+import 'package:trainerpro/providers/settings_provider.dart';
+import 'package:trainerpro/screens/main_screen.dart';
+import 'package:trainerpro/screens/tabs/workout_tab.dart';
+import 'package:trainerpro/screens/tabs/history_tab.dart';
+import 'package:trainerpro/screens/tabs/stats_tab.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUp(() {
+    SharedPreferences.setMockInitialValues({
+      'has_completed_onboarding': true,
+    });
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  Widget buildTestApp(WorkoutProvider workoutProvider, SettingsProvider settingsProvider) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeManager()),
+        ChangeNotifierProvider.value(value: workoutProvider),
+        ChangeNotifierProvider.value(value: settingsProvider),
+      ],
+      child: const TrainerProApp(),
+    );
+  }
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('1. Render MainScreen when onboarding is complete', (WidgetTester tester) async {
+    final workout = WorkoutProvider();
+    final settings = SettingsProvider();
+
+    await tester.pumpWidget(buildTestApp(workout, settings));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MainScreen), findsOneWidget);
+    expect(find.byType(WorkoutTab), findsOneWidget);
+  });
+
+  testWidgets('2. Start active workout session and render UI without overflow', (WidgetTester tester) async {
+    final workout = WorkoutProvider();
+    final settings = SettingsProvider();
+
+    await tester.pumpWidget(buildTestApp(workout, settings));
+    await tester.pumpAndSettle();
+
+    // Start workout
+    workout.startWorkout('PUSH (EMPUJE)');
+    await tester.pumpAndSettle();
+
+    expect(workout.isSessionActive, isTrue);
+    expect(find.text('ENTRENANDO'), findsOneWidget);
+  });
+
+  testWidgets('3. HistoryTab and StatsTab render without errors', (WidgetTester tester) async {
+    final workout = WorkoutProvider();
+    final settings = SettingsProvider();
+
+    await tester.pumpWidget(buildTestApp(workout, settings));
+    await tester.pumpAndSettle();
+
+    // Switch to HistoryTab
+    await tester.tap(find.byIcon(LucideIcons.calendar).first);
+    await tester.pumpAndSettle();
+
+    // Switch to StatsTab
+    await tester.tap(find.byIcon(LucideIcons.trending_up).first);
+    await tester.pumpAndSettle();
   });
 }

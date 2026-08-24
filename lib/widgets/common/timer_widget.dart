@@ -25,7 +25,7 @@ class _TimerWidgetState extends State<TimerWidget> {
     }
 
     if (_isExpanded) {
-      return _buildExpandedTimer(theme, workout);
+      return Positioned.fill(child: _buildExpandedTimer(theme, workout));
     }
 
     return Positioned(
