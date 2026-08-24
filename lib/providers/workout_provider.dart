@@ -84,6 +84,7 @@ class WorkoutProvider extends ChangeNotifier {
     final prefs = _storage.prefs;
     prefs.setString('interrupted_workout_type', _activeWorkoutType);
     prefs.setBool('interrupted_workout_paused', _isPaused);
+    prefs.setString('interrupted_workout_selected_exercise', _selectedExercise);
     final exercisesJson = jsonEncode(_currentSessionExercises.map((e) => e.toJson()).toList());
     prefs.setString('interrupted_workout_exercises', exercisesJson);
   }
@@ -93,6 +94,7 @@ class WorkoutProvider extends ChangeNotifier {
     prefs.remove('interrupted_workout_type');
     prefs.remove('interrupted_workout_paused');
     prefs.remove('interrupted_workout_exercises');
+    prefs.remove('interrupted_workout_selected_exercise');
     _hasInterruptedSession = false;
   }
 
@@ -101,6 +103,7 @@ class WorkoutProvider extends ChangeNotifier {
     final type = prefs.getString('interrupted_workout_type') ?? '';
     final isPaused = prefs.getBool('interrupted_workout_paused') ?? false;
     final jsonStr = prefs.getString('interrupted_workout_exercises') ?? '[]';
+    final savedExercise = prefs.getString('interrupted_workout_selected_exercise') ?? '';
 
     if (type.isNotEmpty) {
       _activeWorkoutType = type;
@@ -108,7 +111,13 @@ class WorkoutProvider extends ChangeNotifier {
       
       final exercisesList = _config.exerciseDb[type] ?? [];
       _activeExercises = List<String>.from(exercisesList);
-      _selectedExercise = exercisesList.isNotEmpty ? exercisesList[0] : '';
+      
+      // Restore selected exercise - prefer the saved one, fallback to first in list
+      if (savedExercise.isNotEmpty && exercisesList.contains(savedExercise)) {
+        _selectedExercise = savedExercise;
+      } else {
+        _selectedExercise = exercisesList.isNotEmpty ? exercisesList[0] : '';
+      }
 
       try {
         final List<dynamic> decoded = jsonDecode(jsonStr);
@@ -306,6 +315,7 @@ class WorkoutProvider extends ChangeNotifier {
 
   void setSelectedExercise(String ex) {
     _selectedExercise = ex;
+    _saveActiveSessionState();
     notifyListeners();
   }
 
@@ -334,10 +344,7 @@ class WorkoutProvider extends ChangeNotifier {
         _storage.prefs.remove('timer_end_time');
         _pipService.setTimerActive(false);
         HapticUtils.timerFinish();
-        _notificationService.showRestTimerCompleteNotification(
-          title: '¡Tiempo de Descanso Finalizado! 💪',
-          body: 'Has completado el tiempo de recuperación. ¡A por la siguiente serie!',
-        );
+        _notificationService.showRestTimerCompleteNotification();
         notifyListeners();
       }
     });

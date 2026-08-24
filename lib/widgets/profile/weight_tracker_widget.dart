@@ -4,7 +4,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_manager.dart';
@@ -75,7 +75,7 @@ class WeightTrackerWidget extends StatelessWidget {
                     ],
                   ),
                   IconButton(
-                    icon: Icon(LucideIcons.plus_circle, color: theme.accentColor, size: 22),
+                    icon: Icon(LucideIcons.circle_plus, color: theme.accentColor, size: 22),
                     onPressed: () => _showAddWeightDialog(context, profileProvider, l10n),
                     tooltip: l10n?.add_weight_entry ?? 'Registrar Peso',
                   ),

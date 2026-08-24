@@ -69,12 +69,16 @@ class _WorkoutTabState extends State<WorkoutTab> {
               Icon(LucideIcons.dumbbell, size: 64, color: AppColors.textMuted),
               const SizedBox(height: 20),
               Text(
-                'No hay rutinas configuradas',
+                settings.translate('no_groups_configured') != 'no_groups_configured'
+                    ? settings.translate('no_groups_configured')
+                    : 'No hay rutinas configuradas',
                 style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
-                'Parece que tu configuración está vacía. Restaura los ejercicios por defecto para comenzar.',
+                settings.translate('no_groups_desc') != 'no_groups_desc'
+                    ? settings.translate('no_groups_desc')
+                    : 'Parece que tu configuración está vacía. Restaura los ejercicios por defecto para comenzar.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(fontSize: 13, color: AppColors.textSecondary),
               ),
@@ -85,7 +89,7 @@ class _WorkoutTabState extends State<WorkoutTab> {
                   workout.updateConfig(defaults);
                 },
                 icon: const Icon(LucideIcons.rotate_ccw, size: 18),
-                label: const Text('Restaurar ejercicios por defecto'),
+                label: Text(settings.translate('restore_routine')),
               ),
             ],
           ),
@@ -354,7 +358,7 @@ class _WorkoutTabState extends State<WorkoutTab> {
             const QuickTimerButtons(),
             const SizedBox(height: 20),
             PrimaryButton(
-              label: 'GUARDAR SERIE',
+              label: settings.translate('save_set'),
               icon: LucideIcons.plus,
               onPressed: () {
                 if (_weightCtrl.text.isNotEmpty && _repsCtrl.text.isNotEmpty) {
@@ -385,7 +389,9 @@ class _WorkoutTabState extends State<WorkoutTab> {
   void _showCancelDialog(BuildContext context, WorkoutProvider workout, SettingsProvider settings) {
     showDialog(context: context, builder: (c) => AlertDialog(
       title: Text(settings.translate('exit_workout')),
-      content: const Text('¿Seguro que quieres salir? Se perderá el progreso de esta sesión.'),
+      content: Text(settings.translate('exit_workout_confirm') != 'exit_workout_confirm'
+          ? settings.translate('exit_workout_confirm')
+          : '¿Seguro que quieres salir? Se perderá el progreso de esta sesión.'),
       actions: [
         TextButton(onPressed: () => Navigator.pop(c), child: Text(settings.translate('cancel'))),
         TextButton(onPressed: () {

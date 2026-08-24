@@ -205,7 +205,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             const Spacer(),
             if (isSelected)
-              Icon(LucideIcons.check_circle, size: 20, color: theme.accentColor),
+              Icon(LucideIcons.circle_check, size: 20, color: theme.accentColor),
           ],
         ),
       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_manager.dart';
 import '../../providers/workout_provider.dart';
@@ -33,8 +33,8 @@ class InterruptedSessionDialog extends StatelessWidget {
     final continueText = l10n?.continue_workout ?? 'CONTINUAR ENTRENAMIENTO';
     final finishText = l10n?.finish_saved_workout ?? 'FINALIZAR Y GUARDAR';
 
-    return WillPopScope(
-      onWillPop: () async => false, // Prevent dismissing by back button
+    return PopScope(
+      canPop: false,
       child: Dialog(
         backgroundColor: theme.cardColor,
         shape: RoundedRectangleBorder(
@@ -56,7 +56,7 @@ class InterruptedSessionDialog extends StatelessWidget {
                   border: Border.all(color: theme.accentColor.withOpacity(0.3)),
                 ),
                 child: Icon(
-                  LucideIcons.history,
+                  LucideIcons.rotate_ccw,
                   color: theme.accentColor,
                   size: 32,
                 ),
@@ -112,7 +112,7 @@ class InterruptedSessionDialog extends StatelessWidget {
                     workout.discardInterruptedSession(finishAndSave: true);
                     Navigator.of(context).pop();
                   },
-                  icon: const Icon(LucideIcons.check_circle, size: 18),
+                  icon: const Icon(LucideIcons.circle_check, size: 18),
                   label: Text(finishText),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: theme.accentColor,

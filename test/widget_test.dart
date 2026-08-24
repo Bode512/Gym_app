@@ -73,6 +73,7 @@ void main() {
     workout.addSet(exercise, 80.0, 10.0, 'Excelente sesión');
     workout.finishWorkout();
     await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
     // 2. Start a new workout session with the same exercise
     workout.startWorkout('PUSH (EMPUJE)');

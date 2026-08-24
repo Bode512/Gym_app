@@ -32,7 +32,9 @@ class HistoryTab extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Completa tu primer entrenamiento para guardarlo aquí.',
+              settings.translate('no_history_message') != 'no_history_message'
+                  ? settings.translate('no_history_message')
+                  : 'Completa tu primer entrenamiento para guardarlo aquí.',
               style: GoogleFonts.plusJakartaSans(color: AppColors.textMuted, fontSize: 12),
             ),
           ],
