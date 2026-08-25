@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// No description provided for @app_name.
   ///
   /// In es, this message translates to:
-  /// **'TRAINER PRO'**
+  /// **'RITMO'**
   String get app_name;
 
   /// No description provided for @today.
@@ -259,7 +259,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboarding_title.
   ///
   /// In es, this message translates to:
-  /// **'TRAINER PRO'**
+  /// **'RITMO'**
   String get onboarding_title;
 
   /// No description provided for @onboarding_subtitle.

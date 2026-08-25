@@ -83,15 +83,16 @@ class WeightTrackerWidget extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _weightStat(l10n?.current_weight ?? 'Actual', '${current.toStringAsFixed(1)} kg', theme.accentColor),
-                  _weightStat(l10n?.target_weight ?? 'Objetivo', '${target.toStringAsFixed(1)} kg', AppColors.textPrimary),
-                  _weightStat(
+                  Expanded(child: _weightStat(l10n?.current_weight ?? 'Actual', '${current.toStringAsFixed(1)} kg', theme.accentColor)),
+                  const SizedBox(width: 8),
+                  Expanded(child: _weightStat(l10n?.target_weight ?? 'Objetivo', '${target.toStringAsFixed(1)} kg', AppColors.textPrimary)),
+                  const SizedBox(width: 8),
+                  Expanded(child: _weightStat(
                     l10n?.fitness_goal ?? 'Meta',
                     _getGoalLabel(profile.fitnessGoal, l10n),
                     AppColors.textSecondary,
-                  ),
+                  )),
                 ],
               ),
               const SizedBox(height: 16),
@@ -126,86 +127,123 @@ class WeightTrackerWidget extends StatelessWidget {
         // Gráfico fl_chart si hay historial
         if (history.isNotEmpty)
           Container(
-            height: 220,
-            padding: const EdgeInsets.fromLTRB(16, 20, 20, 16),
+            height: 240,
+            padding: const EdgeInsets.fromLTRB(8, 20, 16, 16),
             decoration: BoxDecoration(
               color: theme.cardColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.borderDark),
             ),
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => const FlLine(
-                    color: AppColors.borderSubtle,
-                    strokeWidth: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 8),
+                  child: Text(
+                    (l10n?.weight_journal ?? 'PROGRESO DE PESO').toUpperCase(),
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1.2),
                   ),
                 ),
-                titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 28,
-                      getTitlesWidget: (val, meta) {
-                        final index = val.toInt();
-                        if (index >= 0 && index < history.length) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              DateFormat('d/M').format(history[index].date),
-                              style: GoogleFonts.inter(fontSize: 10, color: AppColors.textMuted),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 36,
-                      getTitlesWidget: (val, meta) {
-                        return Text(
-                          val.toStringAsFixed(0),
-                          style: GoogleFonts.inter(fontSize: 10, color: AppColors.textMuted),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: history.asMap().entries.map((e) {
-                      return FlSpot(e.key.toDouble(), e.value.weight);
-                    }).toList(),
-                    isCurved: true,
-                    color: theme.accentColor,
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) {
-                        return FlDotCirclePainter(
-                          radius: 4,
+                Expanded(
+                  child: LineChart(
+                    LineChartData(
+                      minY: (history.map((e) => e.weight).reduce((a, b) => a < b ? a : b) - 2).clamp(0, double.infinity),
+                      maxY: history.map((e) => e.weight).reduce((a, b) => a > b ? a : b) + 2,
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        getDrawingHorizontalLine: (value) => const FlLine(
+                          color: AppColors.borderSubtle,
+                          strokeWidth: 1,
+                        ),
+                      ),
+                      titlesData: FlTitlesData(
+                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            interval: history.length > 7 ? (history.length / 5).ceilToDouble() : 1,
+                            getTitlesWidget: (val, meta) {
+                              final index = val.toInt();
+                              if (index >= 0 && index < history.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    DateFormat('d/M').format(history[index].date),
+                                    style: GoogleFonts.inter(fontSize: 9, color: AppColors.textMuted),
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 40,
+                            getTitlesWidget: (val, meta) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: Text(
+                                  '${val.toStringAsFixed(0)}kg',
+                                  style: GoogleFonts.inter(fontSize: 9, color: AppColors.textMuted),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      borderData: FlBorderData(show: false),
+                      lineTouchData: LineTouchData(
+                        touchTooltipData: LineTouchTooltipData(
+                          getTooltipItems: (touchedSpots) {
+                            return touchedSpots.map((spot) {
+                              final idx = spot.x.toInt();
+                              final dateStr = idx >= 0 && idx < history.length
+                                  ? DateFormat('d MMM yyyy', 'es').format(history[idx].date)
+                                  : '';
+                              return LineTooltipItem(
+                                '${spot.y.toStringAsFixed(1)} kg\n$dateStr',
+                                GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                              );
+                            }).toList();
+                          },
+                        ),
+                        handleBuiltInTouches: true,
+                      ),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: history.asMap().entries.map((e) {
+                            return FlSpot(e.key.toDouble(), e.value.weight);
+                          }).toList(),
+                          isCurved: true,
                           color: theme.accentColor,
-                          strokeWidth: 2,
-                          strokeColor: theme.cardColor,
-                        );
-                      },
-                    ),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: theme.accentColor.withOpacity(0.1),
+                          barWidth: 2.5,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) {
+                              return FlDotCirclePainter(
+                                radius: 4,
+                                color: theme.accentColor,
+                                strokeWidth: 2,
+                                strokeColor: theme.cardColor,
+                              );
+                            },
+                          ),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: theme.accentColor.withOpacity(0.08),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
       ],
@@ -214,16 +252,22 @@ class WeightTrackerWidget extends StatelessWidget {
 
   Widget _weightStat(String label, String value, Color color) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           label.toUpperCase(),
           style: GoogleFonts.inter(fontSize: 10, color: AppColors.textMuted, letterSpacing: 0.8),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
         Text(
           value,
           style: GoogleFonts.playfairDisplay(fontSize: 16, fontWeight: FontWeight.bold, color: color),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

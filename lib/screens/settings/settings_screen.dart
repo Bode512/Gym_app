@@ -77,15 +77,24 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${l10n?.height_cm ?? 'Altura'}: ${profileProvider.profile.heightCm.toInt()} cm',
-                      style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary),
+                    Expanded(
+                      child: Text(
+                        '${l10n?.height_cm ?? 'Altura'}: ${profileProvider.profile.heightCm.toInt()} cm',
+                        style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    Text(
-                      '${l10n?.fitness_goal ?? 'Meta'}: ${profileProvider.profile.fitnessGoal}',
-                      style: GoogleFonts.inter(fontSize: 12, color: theme.accentColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${l10n?.fitness_goal ?? 'Meta'}: ${profileProvider.profile.fitnessGoal}',
+                        style: GoogleFonts.inter(fontSize: 12, color: theme.accentColor),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                      ),
                     ),
                   ],
                 ),
@@ -141,10 +150,9 @@ class SettingsScreen extends StatelessWidget {
             )),
           ] else ...[
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _sectionTitle(l10n?.cycle_order ?? 'ORDEN DEL CICLO'),
-                Row(children: [
+                Expanded(child: _sectionTitle(l10n?.cycle_order ?? 'ORDEN DEL CICLO')),
+                Row(mainAxisSize: MainAxisSize.min, children: [
                   TextButton.icon(
                     onPressed: () => _showAddGroupDialog(context, workout, l10n),
                     icon: Icon(LucideIcons.plus, size: 14, color: theme.accentColor),

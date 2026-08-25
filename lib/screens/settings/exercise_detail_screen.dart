@@ -143,20 +143,21 @@ class ExerciseDetailScreen extends StatelessWidget {
         border: Border.all(color: AppColors.borderDark),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "${set.weight}kg x ${set.reps.toInt()}",
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
-              ),
-              Text(
-                "${set.date.day}/${set.date.month}/${set.date.year}",
-                style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppColors.textMuted),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${set.weight}kg x ${set.reps.toInt()}",
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                ),
+                Text(
+                  "${set.date.day}/${set.date.month}/${set.date.year}",
+                  style: GoogleFonts.plusJakartaSans(fontSize: 10, color: AppColors.textMuted),
+                ),
+              ],
+            ),
           ),
           if (set.note.isNotEmpty)
             const Icon(LucideIcons.message_square, size: 16, color: AppColors.textSecondary),

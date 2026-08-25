@@ -147,7 +147,9 @@ class _ExerciseTag extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(name, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
+          Flexible(
+            child: Text(name, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textPrimary, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
           const SizedBox(width: 4),
           IconButton(
             icon: const Icon(LucideIcons.archive, size: 13, color: AppColors.warning),

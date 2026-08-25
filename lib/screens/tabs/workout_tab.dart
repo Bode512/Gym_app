@@ -132,9 +132,13 @@ class _WorkoutTabState extends State<WorkoutTab> {
                 children: [
                   const Icon(LucideIcons.sparkles, size: 14, color: Colors.white70),
                   const SizedBox(width: 6),
-                  Text(
-                    suggestion['reason']!,
-                    style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w500),
+                  Expanded(
+                    child: Text(
+                      suggestion['reason']!,
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12, color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w500),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -227,16 +231,20 @@ class _WorkoutTabState extends State<WorkoutTab> {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton.icon(
                   onPressed: () => _showCancelDialog(context, workout, settings),
                   icon: const Icon(LucideIcons.x, color: AppColors.textSecondary, size: 18),
                   label: Text(settings.translate('back') ?? 'Volver', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)),
                 ),
-                Text(
-                  settings.translate('training').toUpperCase(),
-                  style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary, letterSpacing: 1),
+                Expanded(
+                  child: Text(
+                    settings.translate('training').toUpperCase(),
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.textPrimary, letterSpacing: 1),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 IconButton(
                   icon: Icon(LucideIcons.trending_up, color: theme.accentColor, size: 20),

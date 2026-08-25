@@ -125,16 +125,20 @@ class _MainScreenState extends State<MainScreen> {
               tooltip: l10n?.settings ?? 'Ajustes',
             )
           else if (workout.isSessionActive)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: theme.accentColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: theme.accentColor.withOpacity(0.3)),
-              ),
-              child: Text(
-                workout.activeWorkoutType,
-                style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: theme.accentColor),
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: theme.accentColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: theme.accentColor.withOpacity(0.3)),
+                ),
+                child: Text(
+                  workout.activeWorkoutType,
+                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: theme.accentColor),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             )
           else

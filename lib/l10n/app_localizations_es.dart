@@ -9,7 +9,7 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get app_name => 'TRAINER PRO';
+  String get app_name => 'RITMO';
 
   @override
   String get today => 'HOY';
@@ -87,7 +87,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get no_activity => 'SIN ACTIVIDAD';
 
   @override
-  String get onboarding_title => 'TRAINER PRO';
+  String get onboarding_title => 'RITMO';
 
   @override
   String get onboarding_subtitle =>

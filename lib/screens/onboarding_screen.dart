@@ -483,15 +483,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         border: Border.all(color: AppColors.borderDark),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            settings.translate(labelKey).toUpperCase(),
-                            style: GoogleFonts.inter(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              letterSpacing: 0.5,
+                          Expanded(
+                            child: Text(
+                              settings.translate(labelKey).toUpperCase(),
+                              style: GoogleFonts.inter(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                letterSpacing: 0.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Icon(LucideIcons.chevron_right, size: 18, color: theme.accentColor),

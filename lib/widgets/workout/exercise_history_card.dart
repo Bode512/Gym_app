@@ -36,24 +36,23 @@ class ExerciseHistoryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  if (isPB) ...[
-                    const Icon(LucideIcons.trophy, size: 14, color: AppColors.warning),
-                    const SizedBox(width: 6),
-                  ],
-                  Text(
-                    title,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 10,
-                      color: isPB ? AppColors.warning : AppColors.textMuted,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
+              if (isPB) ...[
+                const Icon(LucideIcons.trophy, size: 14, color: AppColors.warning),
+                const SizedBox(width: 6),
+              ],
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10,
+                    color: isPB ? AppColors.warning : AppColors.textMuted,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
                   ),
-                ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               if (onCopy != null)
                 IconButton(

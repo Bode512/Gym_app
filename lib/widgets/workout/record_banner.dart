@@ -21,13 +21,17 @@ class RecordBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.emoji_events, color: Colors.black, size: 20),
           const SizedBox(width: 10),
-          Text(
-            message,
-            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+          Flexible(
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
